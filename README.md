@@ -18,7 +18,7 @@ Replaces the earlier [`dnd_2024`](https://github.com/jabeda321/dnd_2024) and [`d
 
 ## Development
 
-Requires Node 24+.
+Requires Node 24+ (see `.nvmrc`).
 
 ```sh
 npm install
@@ -45,9 +45,10 @@ The data in `src/data/*.json` is generated from the SRD PDF, which is the source
 `npm run validate` checks the schema, cross-references and allowed HTML. Raw extraction lives in `source/`:
 `source/SRD_CC_v5.2.1.pdf`, `scripts/extract_srd.py` (PyMuPDF) and `source/reports/*` (comparisons against the old sites).
 
-Regenerating the data from the PDF:
+Regenerating the data from the PDF (Python 3 with the pinned dependencies in `requirements.txt`):
 
 ```sh
+python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt
 .venv/Scripts/python scripts/extract_srd.py        # PDF -> source/extracted/*.txt
 .venv/Scripts/python scripts/build_glossary.py     # -> glossary.json
 .venv/Scripts/python scripts/build_combat_rules.py # -> combat-rules.json

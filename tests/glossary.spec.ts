@@ -29,8 +29,8 @@ test('loading /glossary/?category=conditions pre-applies the filter', async ({ p
 
 test('detail page "See also" chips navigate to the related entry', async ({ page }) => {
   await page.goto('glossary/grappled-condition/');
-  const firstChip = page.locator('.panel-accent .chips a.chip').first();
-  const label = await firstChip.textContent();
+  const firstChip = page.locator('.panel-accent .aside-list a').first();
+  const label = await firstChip.locator('.aside-name').textContent();
   await firstChip.click();
 
   await expect(page.locator('h1')).toHaveText(label!.trim());

@@ -6,72 +6,107 @@ import { url } from '../../lib/data';
 
 <AppShell title="Favourites" section="favourites" description="Your saved rules, weapons and masteries, stored on this device.">
   <header class="page-head">
-    <p class="eyebrow"><Icon name="star" size={16} />Saved on this device</p>
     <h1>Favourites</h1>
+    <span class="taper" aria-hidden="true"></span>
     <p class="lede">Star any rule, weapon, mastery or property to keep it here for quick lookup at the table.</p>
   </header>
 
-  <div class="card-grid" data-fav-grid aria-live="polite"></div>
+  <ul class="row-list" data-fav-grid hidden></ul>
+  <p class="visually-hidden" role="status" data-fav-status></p>
 
   <div class="empty-state" hidden data-fav-empty>
     <Icon name="star" size={32} />
-    <p><strong>No favourites yet.</strong></p>
-    <p>Tap the star on any entry to save it here.</p>
-    <p><a class="btn btn-primary" href={url('glossary/')}>Browse the glossary</a></p>
+    <p><strong data-empty-title tabindex="-1">No favourites yet.</strong></p>
+    <p>Tap the star on any rule, weapon or item to save it here.</p>
+    <p><a class="btn btn-primary" href={url('glossary/')}>Browse the Rules Glossary</a></p>
   </div>
 
   <template id="fav-card">
-    <article class="card">
-      <div class="card-top">
-        <h2 class="card-title"><a class="card-link"></a></h2>
-        <button class="icon-btn fav-btn" type="button" aria-pressed="true"><Icon name="star" size={18} /></button>
+    <li class="row">
+      <div class="row-main">
+        <h2 class="row-title"><a class="row-link"></a><span class="badge"></span></h2>
+        <p class="row-summary"></p>
       </div>
-      <p class="card-summary"></p>
-      <div class="card-meta"><span class="badge"></span></div>
-    </article>
+      <button class="icon-btn fav-btn" type="button" aria-pressed="true"><Icon name="star" size={20} /></button>
+    </li>
   </template>
 </AppShell>
 
 <script>
   import { getFavourites, loadIndex } from '../../scripts/store';
+  import { onPage } from '../../scripts/page';
 
-  const grid = document.querySelector<HTMLElement>('[data-fav-grid]')!;
-  const empty = document.querySelector<HTMLElement>('[data-fav-empty]')!;
-  const tpl = document.querySelector<HTMLTemplateElement>('#fav-card')!;
-  const KIND: Record<string, string> = { weapon: 'Weapon', mastery: 'Mastery', property: 'Property', equipment: 'Equipment' };
+  onPage((signal) => {
+    const maybeList = document.querySelector<HTMLElement>('[data-fav-grid]');
+    if (!maybeList) return;
+    const list = maybeList;
+    const empty = document.querySelector<HTMLElement>('[data-fav-empty]')!;
+    const emptyTitle = document.querySelector<HTMLElement>('[data-empty-title]')!;
+    const status = document.querySelector<HTMLElement>('[data-fav-status]')!;
+    const tpl = document.querySelector<HTMLTemplateElement>('#fav-card')!;
+    const KIND: Record<string, string> = { weapon: 'Weapon', mastery: 'Mastery', property: 'Property', equipment: 'Equipment' };
 
-  async function render() {
-    const favs = getFavourites();
-    let docs: Awaited<ReturnType<typeof loadIndex>> = [];
-    try {
-      docs = await loadIndex();
-    } catch {
-      /* offline before first load */
+    let docs: Awaited<ReturnType<typeof loadIndex>> | null = null;
+    let loadFailed = false;
+
+    async function render() {
+      const favs = getFavourites();
+      if (!docs && favs.length) {
+        try {
+          docs = await loadIndex();
+          loadFailed = false;
+        } catch {
+          loadFailed = true;
+        }
+      }
+
+      // Keep keyboard focus on the same position when a row is removed.
+      const focusedRow = document.activeElement?.closest<HTMLElement>('.row');
+      const focusIndex = focusedRow ? [...list.children].indexOf(focusedRow) : -1;
+
+      const byId = new Map((docs ?? []).map((d) => [d.id, d]));
+      list.replaceChildren(
+        ...favs
+          .map((id) => byId.get(id))
+          .filter((d) => !!d)
+          .map((d) => {
+            const node = tpl.content.cloneNode(true) as DocumentFragment;
+            const link = node.querySelector<HTMLAnchorElement>('.row-link')!;
+            link.href = d!.url;
+            link.textContent = d!.title;
+            node.querySelector('.row-summary')!.textContent = d!.summary;
+            const badge = node.querySelector<HTMLElement>('.badge')!;
+            badge.textContent = d!.kind === 'rule' ? d!.label : KIND[d!.kind];
+            badge.classList.add(d!.kind === 'rule' ? 'badge-red' : 'badge-outline');
+            const btn = node.querySelector<HTMLButtonElement>('.fav-btn')!;
+            btn.dataset.fav = d!.id;
+            btn.dataset.favName = d!.title;
+            btn.setAttribute('aria-label', `Remove ${d!.title} from favourites`);
+            return node;
+          }),
+      );
+
+      const count = list.children.length;
+      list.hidden = count === 0;
+      empty.hidden = count > 0;
+      // Saved ids exist but the index can't load (offline before first visit):
+      // say so rather than claiming the list is empty.
+      emptyTitle.textContent =
+        favs.length && loadFailed ? 'Your favourites can’t be shown offline until the site has loaded once.' : 'No favourites yet.';
+
+      if (focusIndex >= 0) {
+        const rows = list.querySelectorAll<HTMLElement>('.row');
+        const target = rows[Math.min(focusIndex, rows.length - 1)];
+        (target?.querySelector<HTMLElement>('.fav-btn') ?? emptyTitle).focus();
+      }
     }
-    const byId = new Map(docs.map((d) => [d.id, d]));
-    grid.replaceChildren(
-      ...favs
-        .map((id) => byId.get(id))
-        .filter((d) => !!d)
-        .map((d) => {
-          const node = tpl.content.cloneNode(true) as DocumentFragment;
-          const link = node.querySelector<HTMLAnchorElement>('.card-link')!;
-          link.href = d!.url;
-          link.textContent = d!.title;
-          node.querySelector('.card-summary')!.textContent = d!.summary;
-          const badge = node.querySelector<HTMLElement>('.badge')!;
-          badge.textContent = d!.kind === 'rule' ? d!.label : KIND[d!.kind];
-          if (d!.kind === 'mastery') badge.classList.add('badge-gold');
-          const btn = node.querySelector<HTMLButtonElement>('.fav-btn')!;
-          btn.dataset.fav = d!.id;
-          btn.dataset.favName = d!.title;
-          btn.setAttribute('aria-label', `Remove ${d!.title} from favourites`);
-          return node;
-        }),
-    );
-    empty.hidden = grid.children.length > 0;
-  }
 
-  document.addEventListener('favourites-change', render);
-  render();
+    document.addEventListener('favourites-change', (e) => {
+      const remaining = (e as CustomEvent<string[]>).detail.length;
+      void render().then(() => {
+        status.textContent = `${remaining} favourite${remaining === 1 ? '' : 's'} saved`;
+      });
+    }, { signal });
+    render();
+  });
 </script>

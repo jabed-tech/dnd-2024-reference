@@ -17,8 +17,8 @@ const cats = CATEGORIES.filter((c) => counts.has(c.name));
 
 <AppShell title="Rules Glossary" section="glossary" description="Every entry in the D&D 2024 Rules Glossary (SRD 5.2.1), searchable and filterable by category.">
   <header class="page-head">
-    <p class="eyebrow"><Icon name="book" size={16} />SRD 5.2.1</p>
     <h1>Rules Glossary</h1>
+    <span class="taper" aria-hidden="true"></span>
     <p class="lede">Definitions for actions, conditions, combat and core rules. Filter by category or type to narrow the list.</p>
   </header>
 
@@ -52,14 +52,14 @@ const cats = CATEGORIES.filter((c) => counts.has(c.name));
       [...groups].map(([letter, entries]) => (
         <section class="letter-group" id={`letter-${letter}`} aria-labelledby={`h-${letter}`} data-group={letter}>
           <h2 class="letter-heading" id={`h-${letter}`}>{letter}</h2>
-          <div class="card-grid">
+          <ul class="row-list">
             {entries.map((e) => (
               <EntryCard
                 id={`glossary/${e.slug}`}
                 title={e.title}
                 href={glossaryUrl(e.slug)}
                 summary={e.summary}
-                badges={[...(e.tag ? [{ text: e.tag, tone: 'crimson' as const }] : []), { text: e.category }]}
+                badges={e.tag ? [{ text: e.tag, tone: 'red' as const }] : []}
                 attrs={{
                   'data-entry': '',
                   'data-category': categoryMeta(e.category).slug,
@@ -67,7 +67,7 @@ const cats = CATEGORIES.filter((c) => counts.has(c.name));
                 }}
               />
             ))}
-          </div>
+          </ul>
         </section>
       ))
     }
@@ -81,62 +81,86 @@ const cats = CATEGORIES.filter((c) => counts.has(c.name));
 </AppShell>
 
 <script>
-  const root = document.querySelector<HTMLElement>('[data-glossary-filters]')!;
-  const input = root.querySelector<HTMLInputElement>('[data-filter-input]')!;
-  const chips = [...root.querySelectorAll<HTMLButtonElement>('[data-category]')];
-  const count = root.querySelector<HTMLElement>('[data-result-count]')!;
-  const entries = [...document.querySelectorAll<HTMLElement>('[data-entry]')];
-  const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
-  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  import { onPage } from '../../scripts/page';
+  import { settle } from '../../scripts/motion';
 
-  const params = new URLSearchParams(location.search);
-  let category = params.get('category') ?? '';
-  input.value = params.get('q') ?? '';
+  onPage((signal) => {
+    const root = document.querySelector<HTMLElement>('[data-glossary-filters]');
+    if (!root) return;
+    const input = root.querySelector<HTMLInputElement>('[data-filter-input]')!;
+    const chips = [...root.querySelectorAll<HTMLButtonElement>('[data-category]')];
+    const count = root.querySelector<HTMLElement>('[data-result-count]')!;
+    const list = document.querySelector<HTMLElement>('[data-glossary-list]')!;
+    const entries = [...document.querySelectorAll<HTMLElement>('[data-entry]')];
+    const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
+    const empty = document.querySelector<HTMLElement>('[data-empty]')!;
 
-  function apply() {
-    const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    let shown = 0;
-    for (const el of entries) {
-      const match =
-        (!category || el.dataset.category === category) && terms.every((t) => el.dataset.search!.includes(t));
-      el.hidden = !match;
-      if (match) shown++;
+    const params = new URLSearchParams(location.search);
+    let category = params.get('category') ?? '';
+    input.value = params.get('q') ?? '';
+
+    function apply() {
+      const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      for (const el of entries) {
+        const match =
+          (!category || el.dataset.category === category) && terms.every((t) => el.dataset.search!.includes(t));
+        el.hidden = !match;
+        if (match) shown++;
+      }
+      const visibleLetters = new Set<string>();
+      for (const g of groups) {
+        g.hidden = !g.querySelector('[data-entry]:not([hidden])');
+        if (!g.hidden) visibleLetters.add(g.dataset.group!);
+      }
+      root!.querySelectorAll<HTMLAnchorElement>('[data-letter]').forEach((a) => {
+        if (visibleLetters.has(a.dataset.letter!)) a.removeAttribute('aria-disabled');
+        else a.setAttribute('aria-disabled', 'true');
+      });
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.category === category)));
+      count.textContent = `${shown} rule${shown === 1 ? '' : 's'}`;
+      empty.hidden = shown > 0;
+
+      // Sidebar highlight for the active category.
+      document.querySelectorAll<HTMLElement>('[data-nav-category]').forEach((a) => {
+        a.toggleAttribute('data-active', a.dataset.navCategory === category);
+      });
+      const all = document.querySelector<HTMLElement>('[data-nav-all]');
+      if (category) all?.removeAttribute('aria-current');
+      else all?.setAttribute('aria-current', 'page');
+
+      const next = new URLSearchParams();
+      if (category) next.set('category', category);
+      if (input.value.trim()) next.set('q', input.value.trim());
+      const qs = next.toString();
+      history.replaceState(history.state, '', qs ? `?${qs}` : location.pathname);
     }
-    const visibleLetters = new Set<string>();
-    for (const g of groups) {
-      g.hidden = !g.querySelector('[data-entry]:not([hidden])');
-      if (!g.hidden) visibleLetters.add(g.dataset.group!);
-    }
-    root.querySelectorAll<HTMLAnchorElement>('[data-letter]').forEach((a) => {
-      if (visibleLetters.has(a.dataset.letter!)) a.removeAttribute('aria-disabled');
-      else a.setAttribute('aria-disabled', 'true');
-    });
-    chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.category === category)));
-    count.textContent = `${shown} rule${shown === 1 ? '' : 's'}`;
-    empty.hidden = shown > 0;
 
-    // Sidebar highlight for the active category.
-    document.querySelectorAll<HTMLElement>('[data-nav-category]').forEach((a) => {
-      a.toggleAttribute('data-active', a.dataset.navCategory === category);
-    });
-    const all = document.querySelector<HTMLElement>('[data-nav-all]');
-    if (category) all?.removeAttribute('aria-current');
-    else all?.setAttribute('aria-current', 'page');
-
-    const next = new URLSearchParams();
-    if (category) next.set('category', category);
-    if (input.value.trim()) next.set('q', input.value.trim());
-    const qs = next.toString();
-    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
-  }
-
-  chips.forEach((chip) =>
-    chip.addEventListener('click', () => {
-      category = chip.dataset.category ?? '';
+    function setCategory(next: string) {
+      if (next === category) return;
+      category = next;
       apply();
-    }),
-  );
-  input.addEventListener('input', apply);
-  apply();
-  chips.find((c) => c.dataset.category === category)?.scrollIntoView({ block: 'nearest', inline: 'center' });
+      settle(list);
+    }
+
+    chips.forEach((chip) => chip.addEventListener('click', () => setCategory(chip.dataset.category ?? '')));
+    input.addEventListener('input', apply);
+
+    // On this page the sidebar's category links filter in place: no request,
+    // no page swap, just the list changing. Capture phase runs before the router.
+    document.addEventListener(
+      'click',
+      (e) => {
+        const link = (e.target as Element).closest<HTMLAnchorElement>('[data-nav-category], [data-nav-all]');
+        if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        setCategory(link.dataset.navCategory ?? '');
+        window.scrollTo({ top: 0 });
+      },
+      { capture: true, signal },
+    );
+
+    apply();
+  });
 </script>

@@ -890,7 +890,7 @@
  {
   "slug": "feed-per-day",
   "name": "Feed per day",
-  "kind": "vehicle",
+  "kind": "mount",
   "group": "Tack, Harness, and Drawn Vehicles",
   "groupIndex": 8,
   "cost": "5 CP",
@@ -2123,7 +2123,7 @@
  {
   "slug": "saddle-exotic",
   "name": "Saddle, Exotic",
-  "kind": "vehicle",
+  "kind": "mount",
   "group": "Tack, Harness, and Drawn Vehicles",
   "groupIndex": 8,
   "cost": "60 GP",
@@ -2137,7 +2137,7 @@
  {
   "slug": "saddle-military",
   "name": "Saddle, Military",
-  "kind": "vehicle",
+  "kind": "mount",
   "group": "Tack, Harness, and Drawn Vehicles",
   "groupIndex": 8,
   "cost": "20 GP",
@@ -2151,7 +2151,7 @@
  {
   "slug": "saddle-riding",
   "name": "Saddle, Riding",
-  "kind": "vehicle",
+  "kind": "mount",
   "group": "Tack, Harness, and Drawn Vehicles",
   "groupIndex": 8,
   "cost": "10 GP",
@@ -2428,7 +2428,7 @@
  {
   "slug": "stabling-per-day",
   "name": "Stabling per day",
-  "kind": "vehicle",
+  "kind": "mount",
   "group": "Tack, Harness, and Drawn Vehicles",
   "groupIndex": 8,
   "cost": "5 SP",

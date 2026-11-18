@@ -43,14 +43,6 @@ for (const { name, path } of PAGES) {
         scrollWidth: document.documentElement.scrollWidth,
         innerWidth: window.innerWidth,
       }));
-      // KNOWN APP BUG (not a test bug): on the weapons page at 360px, the
-      // absolutely-positioned per-row favourite star (`.w-fav`, inset-inline-end:
-      // 0.4rem) needs ~50px of reserved space but the row's
-      // `padding-inline-end` (3rem = 48px, see src/styles/global.css under
-      // `@container weapons (width < 46rem)`) only reserves 48px, so every card
-      // overflows the viewport by ~2px (measured: scrollWidth 362 vs innerWidth
-      // 360). Left failing intentionally — do not "fix" by loosening this
-      // assertion.
       expect(scrollWidth, `horizontal overflow at ${width}px on /${path}: scrollWidth=${scrollWidth} > innerWidth=${innerWidth}`).toBeLessThanOrEqual(innerWidth);
     });
   }

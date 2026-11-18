@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T12:00:00Z",
+  "title": "Design System: D&D 2024 Reference",
+  "extensions": {
+    "colorMeta": {
+      "red-fill": { "role": "primary", "displayName": "Rulebook Red (fill)", "canonical": "#c8102e", "cssVar": "--red-fill", "tonalRamp": ["oklch(22% 0.07 20)", "oklch(32% 0.11 20)", "oklch(42% 0.16 20)", "oklch(52.5% 0.2 22)", "oklch(62% 0.18 20)", "oklch(72% 0.13 18)", "oklch(84% 0.07 15)", "oklch(95% 0.02 15)"] },
+      "red-fill-hover": { "role": "primary", "displayName": "Rulebook Red (fill, pressed)", "canonical": "#a60d26", "cssVar": "--red-fill-hover" },
+      "on-red": { "role": "primary", "displayName": "On Red", "canonical": "#ffffff", "cssVar": "--on-red" },
+      "red-text": { "role": "primary", "displayName": "Rulebook Red (text, light)", "canonical": "light-dark(#b0102a, #ff6b76)", "cssVar": "--red" },
+      "red-text-dark": { "role": "primary", "displayName": "Rulebook Red (text, dark)", "canonical": "light-dark(#b0102a, #ff6b76)", "cssVar": "--red" },
+      "red-text-strong": { "role": "primary", "displayName": "Red Text Hover (light)", "canonical": "light-dark(#8c0b20, #ff8f97)", "cssVar": "--red-strong" },
+      "red-text-strong-dark": { "role": "primary", "displayName": "Red Text Hover (dark)", "canonical": "light-dark(#8c0b20, #ff8f97)", "cssVar": "--red-strong" },
+      "red-line": { "role": "primary", "displayName": "Rule Line (light)", "canonical": "light-dark(#c8102e, #d8283f)", "cssVar": "--red-line" },
+      "red-line-dark": { "role": "primary", "displayName": "Rule Line (dark)", "canonical": "light-dark(#c8102e, #d8283f)", "cssVar": "--red-line" },
+      "red-soft": { "role": "primary", "displayName": "Red Wash (light)", "canonical": "light-dark(#fbe7ea, #3a1a20)", "cssVar": "--red-soft" },
+      "red-soft-dark": { "role": "primary", "displayName": "Red Wash (dark)", "canonical": "light-dark(#fbe7ea, #3a1a20)", "cssVar": "--red-soft" },
+      "selection": { "role": "primary", "displayName": "Selection / Match (light)", "canonical": "light-dark(#f6c9d0, #5a1f2a)", "cssVar": "--selection" },
+      "selection-dark": { "role": "primary", "displayName": "Selection / Match (dark)", "canonical": "light-dark(#f6c9d0, #5a1f2a)", "cssVar": "--selection" },
+      "ground": { "role": "neutral", "displayName": "Soft White Ground", "canonical": "light-dark(#f7f4f2, #121012)", "cssVar": "--bg", "tonalRamp": ["#0b0a0b", "#121012", "#1c181b", "#2c2629", "#4a3f43", "#cbbfbc", "#e8e1de", "#f7f4f2"] },
+      "ground-dark": { "role": "neutral", "displayName": "Near-Black Ground", "canonical": "light-dark(#f7f4f2, #121012)", "cssVar": "--bg" },
+      "block": { "role": "neutral", "displayName": "Block (light)", "canonical": "light-dark(#ffffff, #1c181b)", "cssVar": "--surface" },
+      "block-dark": { "role": "neutral", "displayName": "Block (dark)", "canonical": "light-dark(#ffffff, #1c181b)", "cssVar": "--surface" },
+      "surface-2": { "role": "neutral", "displayName": "Recess (light)", "canonical": "light-dark(#f1ecea, #241f22)", "cssVar": "--surface-2" },
+      "surface-2-dark": { "role": "neutral", "displayName": "Recess (dark)", "canonical": "light-dark(#f1ecea, #241f22)", "cssVar": "--surface-2" },
+      "surface-3": { "role": "neutral", "displayName": "Deep Recess (light)", "canonical": "light-dark(#e8e1de, #2c2629)", "cssVar": "--surface-3" },
+      "surface-3-dark": { "role": "neutral", "displayName": "Deep Recess (dark)", "canonical": "light-dark(#e8e1de, #2c2629)", "cssVar": "--surface-3" },
+      "chrome": { "role": "neutral", "displayName": "Chrome (light)", "canonical": "light-dark(#ffffff, #0b0a0b)", "cssVar": "--chrome" },
+      "chrome-dark": { "role": "neutral", "displayName": "Chrome (dark)", "canonical": "light-dark(#ffffff, #0b0a0b)", "cssVar": "--chrome" },
+      "border": { "role": "neutral", "displayName": "Hairline (light)", "canonical": "light-dark(#e4dcd9, #2e272a)", "cssVar": "--border" },
+      "border-dark": { "role": "neutral", "displayName": "Hairline (dark)", "canonical": "light-dark(#e4dcd9, #2e272a)", "cssVar": "--border" },
+      "border-strong": { "role": "neutral", "displayName": "Edge (light)", "canonical": "light-dark(#cbbfbc, #4a3f43)", "cssVar": "--border-strong" },
+      "border-strong-dark": { "role": "neutral", "displayName": "Edge (dark)", "canonical": "light-dark(#cbbfbc, #4a3f43)", "cssVar": "--border-strong" },
+      "ink": { "role": "neutral", "displayName": "Ink (light)", "canonical": "light-dark(#1a1517, #ece6e7)", "cssVar": "--text" },
+      "ink-dark": { "role": "neutral", "displayName": "Warm Ink (dark)", "canonical": "light-dark(#1a1517, #ece6e7)", "cssVar": "--text" },
+      "ink-muted": { "role": "neutral", "displayName": "Muted Ink (light)", "canonical": "light-dark(#5b5154, #b9adb0)", "cssVar": "--text-muted" },
+      "ink-muted-dark": { "role": "neutral", "displayName": "Muted Ink (dark)", "canonical": "light-dark(#5b5154, #b9adb0)", "cssVar": "--text-muted" },
+      "ink-faint": { "role": "neutral", "displayName": "Faint Ink (light)", "canonical": "light-dark(#6f6468, #9d9094)", "cssVar": "--text-faint" },
+      "ink-faint-dark": { "role": "neutral", "displayName": "Faint Ink (dark)", "canonical": "light-dark(#6f6468, #9d9094)", "cssVar": "--text-faint" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page and entry h1. Steps from 2.07rem to 2.5rem at 48rem viewport width.", "cssVar": "--step-4" },
+      "headline": { "displayName": "Headline", "purpose": "Section h2, sticky A-Z letter headings, rule-index entry titles.", "cssVar": "--step-2" },
+      "title": { "displayName": "Title", "purpose": "Prose h3 in red, definition heads, mastery names, disclosure titles.", "cssVar": "--step-1" },
+      "body": { "displayName": "Body", "purpose": "UI text and summaries.", "cssVar": "--step-0" },
+      "prose": { "displayName": "Prose", "purpose": "Rule text, capped at a 70ch measure." },
+      "label": { "displayName": "Label", "purpose": "Stat and glance labels (red, bold), counts, footer.", "cssVar": "--step--1" },
+      "caption": { "displayName": "Caption", "purpose": "Badges, bottom-nav labels, kbd, palette footer.", "cssVar": "--step--2" }
+    },
+    "typeScale": { "ratio": 1.2, "steps": { "-2": "0.75rem", "-1": "0.875rem", "0": "1rem", "1": "1.2rem", "2": "1.44rem", "3": "1.73rem (1.9rem from 48rem)", "4": "2.07rem (2.5rem from 48rem)" } },
+    "fonts": [
+      { "family": "Spectral SC", "weights": [600, 700], "source": "@fontsource/spectral-sc (self-hosted)" },
+      { "family": "Atkinson Hyperlegible Next Variable", "weights": "variable", "source": "@fontsource-variable/atkinson-hyperlegible-next (self-hosted)" }
+    ],
+    "shadows": [
+      { "name": "shadow-lg", "value": "0 24px 56px -14px light-dark(rgb(26 21 23 / 0.32), rgb(0 0 0 / 0.75))", "purpose": "Float: search palette and term preview popover only." },
+      { "name": "bottom-nav-lift", "value": "0 -6px 18px -12px rgb(0 0 0 / 0.35)", "purpose": "Phone bottom tab bar." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Entrances and nudges: palette drop-in (200ms, 8px), term preview rise (160ms, 4px), favourite pop (260ms), back chevron nudge, disclosure chevron rotate (200ms)." },
+      { "name": "state-fast", "value": "100-150ms", "purpose": "Hover background, border and colour changes on rows, chips, buttons." },
+      { "name": "view-transition", "value": "@view-transition { navigation: auto }", "purpose": "Cross-page navigation; header and bottom nav are named so they hold still." },
+      { "name": "reduced-motion", "value": "durations to 0.01ms, view transitions off", "purpose": "prefers-reduced-motion: reduce." }
+    ],
+    "breakpoints": [
+      { "name": "type-step", "value": "48rem", "purpose": "Gutter 1rem to 2rem; type steps 3 and 4 grow; chip rows stop scrolling sideways." },
+      { "name": "shell", "value": "60rem", "purpose": "Sidebar rail and header search appear; bottom nav goes away." },
+      { "name": "palette-fullscreen", "value": "40rem", "purpose": "Below: search palette fills the screen." },
+      { "name": "entry-aside (container)", "value": "56rem", "purpose": "Entry container: side column joins beside the 46rem stat block." },
+      { "name": "table-cards (container)", "value": "46rem", "purpose": "Reference-table container: below, rows collapse to cards." }
+    ],
+    "layout": { "headerHeight": "3.75rem", "bottomNavHeight": "4rem", "sidebarWidth": "16.5rem", "entryWidth": "46rem", "asideWidth": "18.5rem", "measure": "70ch", "mainMax": "76rem" },
+    "focus": { "value": "outline: 2.5px solid var(--focus); outline-offset: 2px", "color": "light-dark(#b0102a, #ff8f97)" }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid red fill with white text; the main action on a surface.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Clear filters</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-block-size: 2.75rem; padding: 0 1rem; border: 1px solid var(--border-strong, #cbbfbc); border-radius: 8px; background: var(--surface, #fff); color: var(--text, #1a1517); font-family: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; font-weight: 700; cursor: pointer; transition: background 150ms, border-color 150ms; } .ds-btn-primary { background: #c8102e; border-color: #c8102e; color: #fff; } .ds-btn-primary:hover { background: #a60d26; border-color: #a60d26; } .ds-btn:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 2px; }"
+    },
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Bordered block-surface button for secondary actions.",
+      "html": "<button class=\"ds-btn2\">Show all</button>",
+      "css": ".ds-btn2 { display: inline-flex; align-items: center; min-block-size: 2.75rem; padding: 0 1rem; border: 1px solid var(--border-strong, #cbbfbc); border-radius: 8px; background: var(--surface, #fff); color: var(--text, #1a1517); font-family: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; font-weight: 700; cursor: pointer; transition: background 150ms, border-color 150ms; } .ds-btn2:hover { background: var(--surface-2, #f1ecea); border-color: var(--text-faint, #6f6468); } .ds-btn2:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 2px; }"
+    },
+    {
+      "name": "Chips and Segmented",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pill filter chips and a segmented type switch; pressed state is solid red.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" aria-pressed=\"true\">Any group</button><button class=\"ds-chip\" aria-pressed=\"false\">Martial <span class=\"ds-count\">24</span></button></div><div class=\"ds-seg\"><button aria-pressed=\"true\">Armor</button><button aria-pressed=\"false\">Tools</button><button aria-pressed=\"false\">Gear</button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-block-end: 0.75rem; } .ds-chip { display: inline-flex; align-items: center; gap: 0.4rem; min-block-size: 2.5rem; padding: 0 0.75rem; border: 1px solid var(--border, #e4dcd9); border-radius: 999px; background: var(--surface, #fff); color: var(--text, #1a1517); font: 600 0.9rem 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; cursor: pointer; transition: background 120ms, border-color 120ms, color 120ms; } .ds-chip:hover { border-color: var(--red-line, #c8102e); color: var(--red, #b0102a); } .ds-chip[aria-pressed='true'] { background: #c8102e; border-color: #c8102e; color: #fff; } .ds-count { font-size: 0.75rem; color: var(--text-faint, #6f6468); } .ds-chip:focus-visible, .ds-seg button:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 2px; } .ds-seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--border, #e4dcd9); border-radius: 8px; background: var(--surface-2, #f1ecea); } .ds-seg button { min-block-size: 2.3rem; padding: 0 0.75rem; border: 0; border-radius: 5px; background: transparent; color: var(--text-muted, #5b5154); font: 600 0.9rem 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; cursor: pointer; } .ds-seg button:hover { color: var(--text, #1a1517); } .ds-seg button[aria-pressed='true'] { background: #c8102e; color: #fff; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Inset filter input with a leading icon; focus turns the edge red.",
+      "html": "<label class=\"ds-field\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg><input class=\"ds-input\" type=\"search\" placeholder=\"Filter equipment\"></label>",
+      "css": ".ds-field { position: relative; display: flex; align-items: center; max-inline-size: 24rem; } .ds-field svg { position: absolute; inset-inline-start: 0.8rem; color: var(--text-faint, #6f6468); pointer-events: none; } .ds-input { inline-size: 100%; min-block-size: 2.75rem; padding: 0 0.75rem 0 2.6rem; border: 1px solid var(--border-strong, #cbbfbc); border-radius: 8px; background: var(--bg, #f7f4f2); color: var(--text, #1a1517); font: 1rem 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; } .ds-input::placeholder { color: var(--text-faint, #6f6468); } .ds-input:hover { border-color: var(--text-faint, #6f6468); } .ds-input:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 0; border-color: var(--focus, #b0102a); }"
+    },
+    {
+      "name": "Stat Block",
+      "kind": "custom",
+      "refersTo": "block",
+      "description": "Signature entry head: serif title, italic subtitle, tapered red rule, red-labelled stat line, then prose with a red run-in head and linked terms.",
+      "html": "<article class=\"ds-block\"><h1 class=\"ds-title\">Longsword</h1><p class=\"ds-sub\">Martial Melee Weapon</p><span class=\"ds-taper\" aria-hidden=\"true\"></span><dl class=\"ds-stat\"><div><dt>Damage</dt><dd>1d8 Slashing</dd></div><div><dt>Mastery</dt><dd><a href=\"#\">Sap</a></dd></div><div><dt>Cost</dt><dd>15 GP</dd></div></dl><p class=\"ds-prose\"><strong>Versatile.</strong> You can wield it with one or two hands; see <a class=\"ds-term\" href=\"#\">Attack</a>.</p></article>",
+      "css": ".ds-block { max-inline-size: 46rem; padding: 1.5rem; border: 1px solid var(--border, #e4dcd9); border-block-start: 3px solid var(--red-line, #c8102e); border-radius: 10px; background: var(--surface, #fff); color: var(--text, #1a1517); font-family: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; } .ds-title { margin: 0; font: 600 2.07rem/1.12 'Spectral SC', 'Palatino Linotype', Georgia, serif; letter-spacing: 0.01em; } .ds-sub { margin: 0.25rem 0 0; color: var(--text-muted, #5b5154); font-style: italic; } .ds-taper { display: block; block-size: 4px; max-inline-size: 32rem; margin-block: 0.75rem; background: var(--red-line, #c8102e); clip-path: polygon(0 0, 100% 50%, 0 100%); } .ds-stat { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; margin: 0; } .ds-stat > div { display: flex; gap: 0.5rem; align-items: baseline; } .ds-stat dt { color: var(--red, #b0102a); font-weight: 700; } .ds-stat dd { margin: 0; font-variant-numeric: tabular-nums; } .ds-stat dd a { color: var(--text, #1a1517); text-decoration-color: var(--red-line, #c8102e); } .ds-stat dd a:hover { color: var(--red, #b0102a); } .ds-prose { margin: 1.5rem 0 0; max-inline-size: 70ch; font-size: 1.04rem; line-height: 1.7; } .ds-prose strong:first-child { color: var(--red, #b0102a); } .ds-term { color: inherit; text-decoration: underline; text-decoration-color: var(--red-line, #c8102e); text-decoration-thickness: 1.5px; text-underline-offset: 0.22em; } .ds-term:hover { color: var(--red, #b0102a); text-decoration-thickness: 2px; } .ds-block a:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 2px; border-radius: 4px; }"
+    },
+    {
+      "name": "Leader List Panel",
+      "kind": "custom",
+      "refersTo": "block",
+      "description": "Side-column and contents lists: name, dotted leader, right-aligned muted label; current item red with a dot.",
+      "html": "<section class=\"ds-panel\"><h2 class=\"ds-ptitle\">See also</h2><ul class=\"ds-leader\"><li><a href=\"#\" aria-current=\"page\">Longsword<span>1d8</span></a></li><li><a href=\"#\">Rapier<span>1d8</span></a></li><li><a href=\"#\">Greatsword<span>2d6</span></a></li></ul></section>",
+      "css": ".ds-panel { max-inline-size: 18.5rem; padding: 1rem; border: 1px solid var(--border, #e4dcd9); border-block-start: 3px solid var(--red-line, #c8102e); border-radius: 10px; background: var(--surface, #fff); font-family: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; } .ds-ptitle { margin: 0 0 0.75rem; font: 700 1.05rem 'Spectral SC', Georgia, serif; letter-spacing: 0.02em; color: var(--red, #b0102a); } .ds-leader { list-style: none; margin: 0; padding: 0; } .ds-leader a { display: flex; align-items: baseline; gap: 0.5rem; min-block-size: 2.5rem; padding-block: 0.5rem; color: var(--text, #1a1517); font-weight: 600; text-decoration: none; border-block-end: 1px solid var(--border, #e4dcd9); } .ds-leader li:last-child a { border-block-end: 0; } .ds-leader a::after { content: ''; flex: 1; order: 1; min-inline-size: 0.75rem; border-block-end: 1px dotted var(--border-strong, #cbbfbc); translate: 0 -0.3em; } .ds-leader span { order: 2; color: var(--text-muted, #5b5154); font-size: 0.875rem; font-weight: 500; font-variant-numeric: tabular-nums; } .ds-leader a:hover, .ds-leader a:hover span { color: var(--red, #b0102a); } .ds-leader a[aria-current='page'] { color: var(--red, #b0102a); font-weight: 800; } .ds-leader a[aria-current='page']::before { content: ''; align-self: center; inline-size: 0.4rem; block-size: 0.4rem; border-radius: 50%; background: #c8102e; flex: none; } .ds-leader a:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 2px; }"
+    },
+    {
+      "name": "Row List",
+      "kind": "card",
+      "refersTo": "block",
+      "description": "Dense index rows in one bordered list; whole row is the link, badges sit beside the title.",
+      "html": "<ul class=\"ds-rows\"><li class=\"ds-row\"><div><h3><a href=\"#\">Blinded</a> <span class=\"ds-badge ds-badge-red\">Condition</span></h3><p>You can't see and automatically fail any ability check that requires sight.</p></div></li><li class=\"ds-row\"><div><h3><a href=\"#\">Bonus Action</a> <span class=\"ds-badge\">Action</span></h3><p>An action you can take only when a feature says so.</p></div></li></ul>",
+      "css": ".ds-rows { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border, #e4dcd9); border-radius: 10px; background: var(--surface, #fff); overflow: clip; font-family: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; } .ds-row { position: relative; padding: 0.75rem 0.5rem 0.75rem 1rem; transition: background 100ms; } .ds-row + .ds-row { border-block-start: 1px solid var(--border, #e4dcd9); } .ds-row:hover { background: var(--surface-2, #f1ecea); } .ds-row h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.5rem; margin: 0; font-size: 1.02rem; font-weight: 700; line-height: 1.35; } .ds-row a { color: var(--text, #1a1517); text-decoration: none; } .ds-row a::after { content: ''; position: absolute; inset: 0; } .ds-row a:hover { color: var(--red, #b0102a); } .ds-row:has(a:focus-visible) { outline: 2.5px solid var(--focus, #b0102a); outline-offset: -2.5px; } .ds-row a:focus-visible { outline: none; } .ds-row p { margin: 0.1rem 0 0; color: var(--text-muted, #5b5154); font-size: 0.92rem; line-height: 1.45; } .ds-badge { display: inline-flex; padding: 0.05rem 0.5rem; border: 1px solid var(--border, #e4dcd9); border-radius: 4px; background: var(--surface-2, #f1ecea); color: var(--text-muted, #5b5154); font-size: 0.75rem; font-weight: 700; line-height: 1.6; } .ds-badge-red { background: var(--red-soft, #fbe7ea); border-color: transparent; color: var(--red, #b0102a); }"
+    },
+    {
+      "name": "Reference Table Header",
+      "kind": "custom",
+      "refersTo": "block",
+      "description": "Sticky serif red header band with a red top edge and sort buttons; collapses to cards under 46rem container width.",
+      "html": "<table class=\"ds-table\"><thead><tr><th><button class=\"ds-sort\">Name</button></th><th>Damage</th><th class=\"ds-num\"><button class=\"ds-sort\" aria-pressed=\"true\">Cost</button></th></tr></thead><tbody><tr><td class=\"ds-name\"><a href=\"#\">Longsword</a></td><td><b>1d8</b> Slashing</td><td class=\"ds-num\">15 GP</td></tr><tr><td class=\"ds-name\"><a href=\"#\">Rapier</a></td><td><b>1d8</b> Piercing</td><td class=\"ds-num\">25 GP</td></tr></tbody></table>",
+      "css": ".ds-table { inline-size: 100%; border-collapse: separate; border-spacing: 0; font: 0.95rem 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--text, #1a1517); } .ds-table th, .ds-table td { padding: 0.6rem 0.8rem; text-align: start; border-block-end: 1px solid var(--border, #e4dcd9); background: var(--surface, #fff); } .ds-table thead th { background: var(--surface-2, #f1ecea); border-block-start: 3px solid var(--red-line, #c8102e); font: 700 0.98rem 'Spectral SC', Georgia, serif; color: var(--red, #b0102a); } .ds-table thead th:first-child { border-start-start-radius: 10px; } .ds-table thead th:last-child { border-start-end-radius: 10px; } .ds-table tbody tr:hover > * { background: var(--surface-2, #f1ecea); } .ds-num { text-align: end !important; } .ds-name a { color: var(--text, #1a1517); font-weight: 700; text-decoration: none; } .ds-name a:hover { color: var(--red, #b0102a); text-decoration: underline; } .ds-sort { padding: 0.25rem 0.35rem; margin: -0.25rem -0.35rem; border: 0; border-radius: 4px; background: none; color: inherit; font: inherit; cursor: pointer; } .ds-sort:hover, .ds-sort[aria-pressed='true'] { background: var(--red-soft, #fbe7ea); } .ds-sort:focus-visible, .ds-name a:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 2px; }"
+    },
+    {
+      "name": "Term Preview",
+      "kind": "custom",
+      "refersTo": "block",
+      "description": "Linked-term popover rendered as a mini stat block with a red open button.",
+      "html": "<div class=\"ds-tip\"><div class=\"ds-tip-title\">Prone</div><div class=\"ds-tip-kind\">Condition</div><p class=\"ds-tip-sum\">Your only movement option is to crawl, and you have Disadvantage on attack rolls.</p><a class=\"ds-tip-open\" href=\"#\">Open Prone</a></div>",
+      "css": ".ds-tip { inline-size: min(22rem, 100%); padding: 1rem; border: 1px solid var(--border-strong, #cbbfbc); border-block-start: 3px solid var(--red-line, #c8102e); border-radius: 10px; background: var(--surface, #fff); color: var(--text, #1a1517); box-shadow: 0 24px 56px -14px rgb(26 21 23 / 0.32); font: 0.95rem/1.5 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; } .ds-tip-title { font: 700 1.3rem/1.15 'Spectral SC', Georgia, serif; } .ds-tip-kind { color: var(--text-muted, #5b5154); font-style: italic; font-size: 0.875rem; } .ds-tip-sum { margin: 0.5rem 0 0; padding-block-start: 0.5rem; border-block-start: 1px solid var(--border, #e4dcd9); } .ds-tip-open { display: flex; align-items: center; justify-content: center; min-block-size: 2.75rem; margin-block-start: 0.75rem; border-radius: 8px; background: #c8102e; color: #fff; font-weight: 700; text-decoration: none; } .ds-tip-open:hover { background: #a60d26; } .ds-tip-open:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: 2px; }"
+    },
+    {
+      "name": "Bottom Nav",
+      "kind": "nav",
+      "refersTo": "nav-link-active",
+      "description": "Phone tab bar under 60rem: five tabs, active tab red with a top bar, search tab icon in a filled red circle.",
+      "html": "<nav class=\"ds-bnav\"><a href=\"#\" aria-current=\"page\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><path d=\"M9 22V12h6v10\"/></svg>Home</a><button class=\"ds-search\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg>Search</button><a href=\"#\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z\"/></svg>Favourites</a></nav>",
+      "css": ".ds-bnav { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--chrome, #fff); border-block-start: 1px solid var(--border, #e4dcd9); box-shadow: 0 -6px 18px -12px rgb(0 0 0 / 0.35); font-family: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif; } .ds-bnav a, .ds-bnav button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-block-size: 4rem; color: var(--text-muted, #5b5154); background: none; border: 0; font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer; } .ds-bnav svg { box-sizing: content-box; padding: 0.3rem; border-radius: 999px; } .ds-bnav [aria-current='page'] { color: var(--red, #b0102a); } .ds-bnav [aria-current='page']::before { content: ''; position: absolute; inset-block-start: 0; inline-size: 2rem; block-size: 3px; border-radius: 0 0 3px 3px; background: #c8102e; } .ds-bnav .ds-search svg { background: #c8102e; color: #fff; } .ds-bnav a:hover, .ds-bnav button:hover { color: var(--text, #1a1517); } .ds-bnav a:focus-visible, .ds-bnav button:focus-visible { outline: 2.5px solid var(--focus, #b0102a); outline-offset: -2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Stat Block",
+    "overview": "Every entry in this reference is set the way a rulebook sets a monster or item: a small-caps serif title, an italic subtitle naming what kind of thing it is, a tapered red rule, a line of red-labelled stats, and then the rule text. That grammar is not reserved for one page type. Weapons, conditions, glossary terms, equipment and even the hover preview of a linked term all open the same way, so a reader at the table learns the shape once and finds the answer in the same place every time.\n\nThe palette is two colours doing all the work: a warm near-black and soft white for ground and ink, and one red that carries every signal. The world refuses both the parchment-and-gold fantasy default (no textures, no Cinzel, no ornament) and the grey docs-site default (the red rule and the serif titles make it unmistakably a rulebook). Density is high and calm: rows, tables and leader-dotted lists rather than tiles, with one sans for everything a hand touches and the serif kept for titles and section heads.\n\nDark and light are equal citizens. Every surface and text token is a `light-dark()` pair; the theme follows the system setting with a manual toggle that pins `data-theme`.",
+    "keyCharacteristics": [
+      "Stat-block grammar on every entry: title, italic subtitle, tapered red rule, stat line, rule text.",
+      "One red, split into a fill role (white text on it) and a text role (tuned per theme for contrast).",
+      "Spectral SC small-caps for titles and section heads only; Atkinson Hyperlegible Next for everything else.",
+      "Blocks carry a 3px red top edge; dividers are tapered red rules; leaders are dotted.",
+      "Flat, bordered surfaces; shadows only on things that float (palette, term preview).",
+      "SVG stroke icons only."
+    ],
+    "rules": [
+      { "name": "The Two Reds Rule", "body": "Red is either a fill with white text on it (`red-fill`, same in both themes) or text/stroke on the ground (`red-text`, `red-line`, tuned per theme). Never put `red-text` on `red-fill`, and never use `red-fill` as text colour.", "section": "colors" },
+      { "name": "The Signal-Only Rule", "body": "Red marks structure and state: rules, top edges, labels, links, the active and pressed state. Body copy, summaries and surfaces stay neutral.", "section": "colors" },
+      { "name": "The Serif Names Things Rule", "body": "Spectral SC sets titles, section heads, table headers, panel titles and the brand. It never sets body text, buttons, chips, inputs or row names.", "section": "typography" },
+      { "name": "The Only-Floaters-Cast Rule", "body": "A surface gets a shadow only if it sits above the page (dialog, popover, fixed nav). Blocks, cards and rows are bordered, never shadowed.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** open every entry type, including previews, with the stat-block grammar: serif title, italic subtitle, tapered rule, stat line, then prose.",
+      "**Do** keep red to its two roles: `red-fill` with white text, or `red-text` / `red-line` on the ground.",
+      "**Do** give blocks a 1px border with a 3px red top edge and a 10px radius; keep them shadowless.",
+      "**Do** use dotted leaders for name/value lists and tabular figures for every number.",
+      "**Do** define every new colour as a `light-dark()` pair and check both themes.",
+      "**Do** use inline SVG stroke icons (24px grid, `currentColor`).",
+      "**Do** keep touch targets at 2.75rem for buttons, inputs and list links."
+    ],
+    "donts": [
+      "**Don't** put a kicker or eyebrow label above a heading; the italic subtitle goes under the title.",
+      "**Don't** add coloured side stripes to cards, rows or callouts; the red accent edge is always the top edge.",
+      "**Don't** use emoji or text glyphs as icons.",
+      "**Don't** reintroduce parchment textures, gold, Cinzel or ornamental fantasy dressing.",
+      "**Don't** set body text, buttons, chips or row names in Spectral SC.",
+      "**Don't** shadow a surface that does not float.",
+      "**Don't** make the filter toolbar sticky; tables pin their own header instead."
+    ]
+  }
+}

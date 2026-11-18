@@ -4,7 +4,9 @@ import AppShell from '../../layouts/AppShell.astro';
 import FavButton from '../../components/FavButton.astro';
 import EntryLayout from '../../components/EntryLayout.astro';
 import Icon from '../../components/Icon.astro';
-import { categoryMeta, glossary, glossaryBySlug, glossaryUrl, linkTerms, url, wrapTables, type GlossaryEntry } from '../../lib/data';
+import AsideList from '../../components/AsideList.astro';
+import RecentPanel from '../../components/RecentPanel.astro';
+import { categoryMeta, glossary, glossaryBySlug, glossaryUrl, linkTerms, url, withLeadIns, wrapTables, type GlossaryEntry } from '../../lib/data';
 
 export const getStaticPaths = (() =>
   glossary.map((entry, i) => ({
@@ -21,7 +23,7 @@ interface Props {
 const { entry, prev, next } = Astro.props;
 const id = `glossary/${entry.slug}`;
 const cat = categoryMeta(entry.category);
-const body = wrapTables(linkTerms(entry.body, id));
+const { html: body, items: leadIns } = withLeadIns(wrapTables(linkTerms(entry.body, id)));
 const seeAlso = entry.seeAlso.map((s) => glossaryBySlug.get(s)).filter((e): e is GlossaryEntry => !!e);
 // Tag families (e.g. every [Condition]) make a useful "related" list.
 const family = entry.tag
@@ -29,7 +31,8 @@ const family = entry.tag
   : [];
 const tagEntry = entry.tag ? glossary.find((e) => e.title === entry.tag && !e.tag) : undefined;
 // Always give the side column something to show, even for entries with no links.
-const MORE_LIMIT = 12;
+const MORE_LIMIT = 8;
+const ASIDE_LIMIT = 8;
 const shown = new Set([entry.slug, ...entry.seeAlso, ...family.map((e) => e.slug)]);
 const inCategory = glossary.filter((e) => e.category === entry.category);
 const moreInCategory = inCategory.filter((e) => !shown.has(e.slug)).slice(0, MORE_LIMIT);
@@ -46,26 +49,50 @@ const moreInCategory = inCategory.filter((e) => !shown.has(e.slug)).slice(0, MOR
             <li aria-current="page">{entry.title}</li>
           </ol>
         </nav>
+      </div>
+
+      <div class="block">
         <header class="entry-head">
           <div class="entry-title-row">
             <h1>{entry.title}</h1>
             <FavButton id={id} name={entry.title} size={24} />
           </div>
-          <div class="entry-meta">
+          <p class="entry-sub">
             {
-              entry.tag &&
-                (tagEntry ? (
-                  <a class="badge badge-crimson" href={glossaryUrl(tagEntry.slug)}>{entry.tag}</a>
-                ) : (
-                  <span class="badge badge-crimson">{entry.tag}</span>
-                ))
+              entry.tag ? (
+                tagEntry ? <a href={glossaryUrl(tagEntry.slug)}>{entry.tag}</a> : <span>{entry.tag}</span>
+              ) : (
+                <a href={url(`glossary/?category=${cat.slug}`)}>{entry.category}</a>
+              )
             }
-            <a class="badge" href={url(`glossary/?category=${cat.slug}`)}><Icon name={cat.icon} size={13} />{entry.category}</a>
-          </div>
+          </p>
         </header>
-      </div>
-
-      <div class="panel entry-body">
+        <span class="taper" aria-hidden="true"></span>
+        {
+          (entry.tag || leadIns.length > 0) && (
+            <>
+              <dl class="stat-line">
+                {entry.tag && (
+                  <div><dt>Category</dt><dd><a href={url(`glossary/?category=${cat.slug}`)}>{entry.category}</a></dd></div>
+                )}
+                {leadIns.length > 0 && (
+                  <div class="stat-jump">
+                    <dt>In this rule</dt>
+                    <dd>
+                      {leadIns.map((l, i) => (
+                        <>
+                          {i > 0 && <span aria-hidden="true"> · </span>}
+                          <a href={`#${l.id}`}>{l.text}</a>
+                        </>
+                      ))}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+              <span class="taper" aria-hidden="true"></span>
+            </>
+          )
+        }
         <div class="prose" set:html={body} />
         {
           entry.srdRefs && entry.srdRefs.length > 0 && (
@@ -75,8 +102,8 @@ const moreInCategory = inCategory.filter((e) => !shown.has(e.slug)).slice(0, MOR
       </div>
 
       <nav class="pager" aria-label="Previous and next rule">
-        {prev && <a class="prev" href={glossaryUrl(prev.slug)} rel="prev"><small>← Previous</small>{prev.title}</a>}
-        {next && <a class="next" href={glossaryUrl(next.slug)} rel="next"><small>Next →</small>{next.title}</a>}
+        {prev && <a class="prev" href={glossaryUrl(prev.slug)} rel="prev"><small><Icon name="chevronLeft" size={14} />Previous</small>{prev.title}</a>}
+        {next && <a class="next" href={glossaryUrl(next.slug)} rel="next"><small>Next<Icon name="chevronRight" size={14} /></small>{next.title}</a>}
       </nav>
     </article>
 
@@ -85,24 +112,21 @@ const moreInCategory = inCategory.filter((e) => !shown.has(e.slug)).slice(0, MOR
         seeAlso.length > 0 && (
           <section class="panel panel-accent" aria-labelledby="see-also">
             <h2 class="panel-title" id="see-also"><Icon name="book" size={16} />See also</h2>
-            <div class="chips">
-              {seeAlso.map((e) => (
-                <a class="chip" href={glossaryUrl(e.slug)} data-term={`glossary/${e.slug}`}>{e.title}</a>
-              ))}
-            </div>
+            <AsideList items={seeAlso.map((e) => ({ name: e.title, href: glossaryUrl(e.slug), meta: e.tag ?? e.category, term: `glossary/${e.slug}` }))} />
           </section>
         )
       }
+
+      <RecentPanel exclude={id} />
 
       {
         family.length > 0 && (
           <section class="panel" aria-labelledby="family">
             <h2 class="panel-title" id="family"><Icon name={cat.icon} size={16} />Other {entry.tag} rules</h2>
-            <div class="chips">
-              {family.map((e) => (
-                <a class="chip" href={glossaryUrl(e.slug)}>{e.title}</a>
-              ))}
-            </div>
+            <AsideList items={family.slice(0, ASIDE_LIMIT).map((e) => ({ name: e.title, href: glossaryUrl(e.slug), term: `glossary/${e.slug}` }))} />
+            {family.length > ASIDE_LIMIT && (
+              <a class="aside-more" href={url(`glossary/?category=${cat.slug}`)}>All {glossary.filter((e) => e.tag === entry.tag).length} {entry.tag} rules<Icon name="chevronRight" size={14} /></a>
+            )}
           </section>
         )
       }
@@ -111,12 +135,8 @@ const moreInCategory = inCategory.filter((e) => !shown.has(e.slug)).slice(0, MOR
         moreInCategory.length > 0 && (
           <section class="panel" aria-labelledby="more-category">
             <h2 class="panel-title" id="more-category"><Icon name={cat.icon} size={16} />More in {entry.category}</h2>
-            <div class="chips">
-              {moreInCategory.map((e) => (
-                <a class="chip" href={glossaryUrl(e.slug)}>{e.title}</a>
-              ))}
-            </div>
-            <a class="aside-more" href={url(`glossary/?category=${cat.slug}`)}>All {inCategory.length} {entry.category} rules →</a>
+            <AsideList items={moreInCategory.map((e) => ({ name: e.title, href: glossaryUrl(e.slug), meta: e.tag, term: `glossary/${e.slug}` }))} />
+            <a class="aside-more" href={url(`glossary/?category=${cat.slug}`)}>All in {entry.category} ({inCategory.length})<Icon name="chevronRight" size={14} /></a>
           </section>
         )
       }

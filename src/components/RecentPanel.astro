@@ -1,0 +1,46 @@
+---
+// "Recently viewed" for the side column of detail pages. Filled on the client
+// from the on-device history; stays hidden when there is nothing to show.
+import Icon from './Icon.astro';
+
+interface Props {
+  /** The current entry's id, left out of the list. */
+  exclude: string;
+}
+
+const { exclude } = Astro.props;
+---
+
+<section class="panel" aria-labelledby="recent-panel-h" data-recent-panel data-exclude={exclude} hidden>
+  <h2 class="panel-title" id="recent-panel-h"><Icon name="clock" size={16} />Recently viewed</h2>
+  <ul class="aside-list" data-recent-items></ul>
+</section>
+
+<script>
+  import { getRecent, loadIndex } from '../scripts/store';
+  import { escapeHtml } from '../scripts/search';
+  import { onPage } from '../scripts/page';
+
+  const KIND: Record<string, string> = { weapon: 'Weapon', mastery: 'Mastery', property: 'Property', equipment: 'Equipment' };
+
+  onPage(() => {
+  for (const panel of document.querySelectorAll<HTMLElement>('[data-recent-panel]')) {
+    const ids = getRecent().filter((id) => id !== panel.dataset.exclude).slice(0, 5);
+    if (!ids.length) continue;
+    loadIndex()
+      .then((docs) => {
+        const byId = new Map(docs.map((d) => [d.id, d]));
+        const rows = ids
+          .map((id) => byId.get(id))
+          .filter((d) => !!d)
+          .map(
+            (d) =>
+              `<li><a href="${d!.url}" data-term="${escapeHtml(d!.id)}"><span class="aside-name">${escapeHtml(d!.title)}</span><span class="aside-meta">${escapeHtml(d!.kind === 'rule' ? d!.label : KIND[d!.kind])}</span></a></li>`,
+          );
+        panel.querySelector('[data-recent-items]')!.innerHTML = rows.join('');
+        panel.hidden = rows.length === 0;
+      })
+      .catch(() => {});
+  }
+  });
+</script>
