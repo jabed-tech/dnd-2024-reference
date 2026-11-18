@@ -96,7 +96,7 @@ export const EQUIPMENT_KINDS = [
   { kind: 'armor', label: 'Armor', plural: 'armor', intro: 'armor' },
   { kind: 'tool', label: 'Tools', plural: 'tools', intro: 'tools' },
   { kind: 'gear', label: 'Gear', plural: 'gear', intro: 'gear' },
-  { kind: 'mount', label: 'Mounts', plural: 'mounts', intro: 'mounts' },
+  { kind: 'mount', label: 'Mounts & Tack', plural: 'mounts and tack', intro: 'mounts' },
   { kind: 'vehicle', label: 'Vehicles', plural: 'vehicles', intro: 'vehicles' },
 ] as const satisfies readonly {
   kind: EquipmentKind;
@@ -169,7 +169,8 @@ export const wrapTables = (html: string) =>
 
 interface Term {
   text: string;
-  href: string;
+  /** null marks a blocker: a phrase that must not be linked as a shorter term inside it. */
+  href: string | null;
   id: string;
 }
 
@@ -182,20 +183,41 @@ const weaponTerms: Term[] = [
   ...masteries.map((m) => ({ text: m.name, href: masteryUrl(m.slug), id: `masteries/${m.slug}` })),
 ];
 
+// Weapon and equipment names win the longest match, so "Light Hammer" links to
+// the weapon rather than the Light property, "Hide Armor" to the armor rather
+// than the Hide action, and "Grappling Hook" to the gear rather than Grappling.
+const itemTerms: Term[] = [
+  ...weapons.map((w) => ({ text: w.name, href: weaponUrl(w.slug), id: `weapons/${w.slug}` })),
+  ...equipment.map((i) => ({ text: i.name, href: equipmentUrl(i.slug), id: `equipment/${i.slug}` })),
+];
+
+// Armor categories read like property names ("Heavy armor") but are not.
+const blockers: Term[] = ['Light', 'Medium', 'Heavy'].map((w) => ({ text: `${w} Armor`, href: null, id: `block/${w}` }));
+
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-function buildMatcher(terms: Term[]) {
+function buildMatcher(terms: Term[], exclude: string[] = []) {
   const byText = new Map<string, Term>();
-  for (const t of terms) if (!byText.has(t.text)) byText.set(t.text, t);
-  const alternation = [...byText.keys()]
+  for (const t of terms) {
+    const key = t.text.toLowerCase();
+    if (!byText.has(key) && !exclude.includes(t.text)) byText.set(key, t);
+  }
+  // Rules terms are capitalised in the SRD, so the first letter must match
+  // exactly; later words may be lower case ("Attack rolls" is the Attack Roll
+  // term, not the Attack action followed by "rolls").
+  const alternation = [...byText.values()]
+    .map((t) => t.text)
     .sort((a, b) => b.length - a.length)
-    .map(escapeRe)
+    .map((t) => (t.length > 1 ? `${escapeRe(t[0])}(?i:${escapeRe(t.slice(1))})` : escapeRe(t)))
     .join('|');
   return { byText, re: new RegExp(`(?<![\\w-])(${alternation})(e?s)?(?![\\w-])`, 'g') };
 }
 
-const glossaryMatcher = buildMatcher(glossaryTerms);
-const weaponMatcher = buildMatcher([...weaponTerms, ...glossaryTerms]);
+const glossaryMatcher = buildMatcher([...blockers, ...glossaryTerms]);
+const weaponMatcher = buildMatcher([...blockers, ...itemTerms, ...weaponTerms, ...glossaryTerms]);
+// In equipment text a bare "Hide" means Hide Armor ("all armor except Hide"),
+// never the Hide action.
+const equipmentMatcher = buildMatcher([...blockers, ...itemTerms, ...weaponTerms, ...glossaryTerms], ['Hide']);
 
 const SKIP_TAGS = new Set(['a', 'h3', 'th', 'strong']);
 
@@ -203,8 +225,8 @@ const SKIP_TAGS = new Set(['a', 'h3', 'th', 'strong']);
  * Link the first mention of each known rules term in an HTML fragment.
  * `selfId` (e.g. "glossary/prone") is never linked.
  */
-export function linkTerms(html: string, selfId: string, domain: 'glossary' | 'weapons' = 'glossary') {
-  const { byText, re } = domain === 'weapons' ? weaponMatcher : glossaryMatcher;
+export function linkTerms(html: string, selfId: string, domain: 'glossary' | 'weapons' | 'equipment' = 'glossary') {
+  const { byText, re } = domain === 'weapons' ? weaponMatcher : domain === 'equipment' ? equipmentMatcher : glossaryMatcher;
   const seen = new Set<string>([selfId]);
   const skipStack: string[] = [];
 
@@ -219,10 +241,35 @@ export function linkTerms(html: string, selfId: string, domain: 'glossary' | 'we
     }
     if (skipStack.length) return text;
     return text.replace(re, (match: string, word: string) => {
-      const term = byText.get(word);
-      if (!term || seen.has(term.id)) return match;
+      const term = byText.get(word.toLowerCase());
+      if (!term || !term.href || seen.has(term.id)) return match;
       seen.add(term.id);
       return `<a class="term" href="${term.href}" data-term="${term.id}">${match}</a>`;
     });
   });
+}
+
+// ---------------------------------------------------------------------------
+// Stat line for rules: the entry's own bold lead-ins ("Speed 0.", "Movable.")
+// ---------------------------------------------------------------------------
+
+const leadInRe = /<p><strong>([^<]{1,48}?)\.?<\/strong>/g;
+
+/**
+ * Give each paragraph that opens with a bold lead-in an id, and return the
+ * lead-ins in order. They are the SRD's own words, so the stat line built from
+ * them never paraphrases the rule.
+ */
+export function withLeadIns(html: string, prefix = 'rule') {
+  const items: { text: string; id: string }[] = [];
+  const used = new Set<string>();
+  const out = html.replace(leadInRe, (match, raw: string) => {
+    const text = raw.trim().replace(/\.$/, '');
+    let id = `${prefix}-${text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+    while (used.has(id)) id += '-x';
+    used.add(id);
+    items.push({ text, id });
+    return match.replace('<p>', `<p id="${id}">`);
+  });
+  return { html: out, items };
 }

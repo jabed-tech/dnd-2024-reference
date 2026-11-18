@@ -1,0 +1,32 @@
+---
+// Side-column list in the contents style: name, dotted leader, then a short
+// right-aligned label (category, damage, cost). Replaces chip clouds, which
+// were hard to scan once they ran past a handful of items.
+interface Item {
+  name: string;
+  href: string;
+  meta?: string;
+  current?: boolean;
+  /** Search-index id, so the link gets a hover/tap preview. */
+  term?: string;
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="aside-list">
+  {
+    items.map((i) => (
+      <li>
+        <a href={i.href} aria-current={i.current ? 'page' : undefined} data-term={i.term}>
+          <span class="aside-name">{i.name}</span>
+          {i.meta && <span class="aside-meta">{i.meta}</span>}
+        </a>
+      </li>
+    ))
+  }
+</ul>

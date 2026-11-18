@@ -32,12 +32,13 @@ const columns = [
 
 <AppShell title="Weapons" section="weapons" description="Sortable, filterable table of every D&D 2024 weapon with damage, properties, mastery, weight and cost.">
   <header class="page-head">
-    <p class="eyebrow"><Icon name="swords" size={16} />Equipment</p>
     <h1>Weapons</h1>
+    <span class="taper" aria-hidden="true"></span>
     <p class="lede">All {weapons.length} weapons from the SRD. Tap a property or mastery for its full rule.</p>
   </header>
 
-  <div class="toolbar" data-weapon-filters>
+  <section data-ref-table data-noun="weapon" data-numeric="damage,weight,cost" data-desc-first="damage,cost" aria-label="Weapon table">
+  <div class="toolbar">
     <div class="toolbar-row">
       <label class="field">
         <span class="visually-hidden">Filter weapons</span>
@@ -98,12 +99,13 @@ const columns = [
           <th scope="col"><span class="visually-hidden">Favourite</span></th>
         </tr>
       </thead>
-      <tbody data-weapon-rows>
+      <tbody data-rows>
         {
           weapons.map((w, i) => {
             const mastery = masteryBySlug.get(w.mastery);
             return (
               <tr
+                data-row
                 data-weapon
                 data-order={i}
                 data-category={w.category}
@@ -136,7 +138,7 @@ const columns = [
                   )}
                 </td>
                 <td class="w-mastery">
-                  <a class="badge badge-gold" href={masteryUrl(w.mastery)} title={mastery?.summary}>{mastery?.name ?? w.mastery}</a>
+                  <a class="badge badge-outline" href={masteryUrl(w.mastery)} title={mastery?.summary}>{mastery?.name ?? w.mastery}</a>
                 </td>
                 <td class="num w-weight" data-label="Weight">{w.weight}</td>
                 <td class="num w-cost" data-label="Cost">{w.cost}</td>
@@ -154,134 +156,25 @@ const columns = [
     <p><strong>No weapons match those filters.</strong></p>
     <button class="btn" type="button" data-reset>Clear filters</button>
   </div>
+  </section>
 
-  <section class="section">
-    <div class="section-head">
-      <h2>Rules for weapons</h2>
-    </div>
-    <div class="card-grid">
-      <a class="card feature-card" href={url('masteries/')}>
-        <span class="feature-icon"><Icon name="sparkles" /></span>
-        <span><strong>Weapon Masteries</strong><br /><span class="card-summary">Cleave, Graze, Nick, Push, Sap, Slow, Topple, Vex</span></span>
-        <Icon name="chevronRight" class="chev" />
-      </a>
-      <a class="card feature-card" href={url('properties/')}>
-        <span class="feature-icon"><Icon name="tag" /></span>
-        <span><strong>Weapon Properties</strong><br /><span class="card-summary">Finesse, Heavy, Light, Reach, Thrown, Versatile…</span></span>
-        <Icon name="chevronRight" class="chev" />
-      </a>
+  <section class="section" aria-labelledby="rules-for">
+    <div class="panel">
+      <h2 class="panel-title" id="rules-for">Rules for weapons</h2>
+      <ul class="contents-list">
+        <li><a href={url('masteries/')}>Weapon Masteries<span class="count">Cleave, Graze, Nick, Push, Sap, Slow, Topple, Vex</span></a></li>
+        <li><a href={url('properties/')}>Weapon Properties<span class="count">Finesse, Heavy, Light, Reach, Thrown…</span></a></li>
+      </ul>
     </div>
   </section>
 </AppShell>
 
-<style>
-  .w-fav { inline-size: 1%; padding-block: 0 !important; }
-  @container weapons (width < 46rem) {
-    .weapons-table .w-fav { position: absolute; inset-block-start: 0.25rem; inset-inline-end: 0.25rem; inline-size: auto; }
-    .weapons-table tr { position: relative; padding-inline-end: 3.25rem; }
-    .weapons-table .dmg { grid-column: 1 !important; grid-row: auto !important; text-align: start !important; }
-  }
-  a.card { text-decoration: none; color: var(--text); }
-  a.card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
-</style>
 
 <script>
-  const filters = document.querySelector<HTMLElement>('[data-weapon-filters]')!;
-  const input = filters.querySelector<HTMLInputElement>('[data-filter-input]')!;
-  const tbody = document.querySelector<HTMLElement>('[data-weapon-rows]')!;
-  const rows = [...tbody.querySelectorAll<HTMLTableRowElement>('[data-weapon]')];
-  const count = document.querySelector<HTMLElement>('[data-result-count]')!;
-  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
-  const cardSort = document.querySelector<HTMLSelectElement>('[data-card-sort]')!;
-  const sortButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-sort]')];
-
-  type SetKey = 'category' | 'kind' | 'mastery';
-  const state: Record<SetKey, string> = { category: '', kind: '', mastery: '' };
-  let sortKey = '';
-  let sortDir: 'asc' | 'desc' = 'asc';
-
-  const params = new URLSearchParams(location.search);
-  for (const k of ['category', 'kind', 'mastery'] as SetKey[]) state[k] = params.get(k) ?? '';
-  input.value = params.get('q') ?? '';
-
-  function applyFilters() {
-    const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    let shown = 0;
-    for (const row of rows) {
-      const d = row.dataset;
-      const match =
-        (!state.category || d.category === state.category) &&
-        (!state.kind || d.kind === state.kind) &&
-        (!state.mastery || d.mastery === state.mastery) &&
-        terms.every((t) => d.search!.includes(t));
-      row.hidden = !match;
-      if (match) shown++;
-    }
-    filters.querySelectorAll<HTMLButtonElement>('[data-set]').forEach((b) => {
-      b.setAttribute('aria-pressed', String(state[b.dataset.set as SetKey] === b.dataset.value));
-    });
-    count.textContent = `${shown} weapon${shown === 1 ? '' : 's'}`;
-    empty.hidden = shown > 0;
-
-    const next = new URLSearchParams();
-    for (const [k, v] of Object.entries(state)) if (v) next.set(k, v);
-    if (input.value.trim()) next.set('q', input.value.trim());
-    const qs = next.toString();
-    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
-  }
-
-  function applySort() {
-    const numeric = sortKey === 'damage' || sortKey === 'weight' || sortKey === 'cost';
-    const sorted = [...rows].sort((a, b) => {
-      if (!sortKey) return Number(a.dataset.order) - Number(b.dataset.order);
-      const av = a.dataset[sortKey]!;
-      const bv = b.dataset[sortKey]!;
-      const cmp = numeric ? Number(av) - Number(bv) : av.localeCompare(bv);
-      return (sortDir === 'asc' ? cmp : -cmp) || a.dataset.name!.localeCompare(b.dataset.name!);
-    });
-    tbody.append(...sorted);
-    sortButtons.forEach((btn) => {
-      const th = btn.closest('th')!;
-      if (btn.dataset.sort === sortKey) th.setAttribute('aria-sort', sortDir === 'asc' ? 'ascending' : 'descending');
-      else th.removeAttribute('aria-sort');
-    });
-    cardSort.value = sortKey ? `${sortKey}:${sortDir}` : '';
-  }
-
-  filters.addEventListener('click', (e) => {
-    const btn = (e.target as Element).closest<HTMLButtonElement>('[data-set]');
-    if (!btn) return;
-    state[btn.dataset.set as SetKey] = btn.dataset.value ?? '';
-    applyFilters();
+  import { initRefTable } from '../../scripts/table';
+  import { onPage } from '../../scripts/page';
+  onPage(() => {
+    const table = document.querySelector<HTMLElement>('[data-ref-table]');
+    if (table?.querySelector('tr[data-weapon]')) initRefTable(table);
   });
-  input.addEventListener('input', applyFilters);
-
-  sortButtons.forEach((btn) =>
-    btn.addEventListener('click', () => {
-      const key = btn.dataset.sort!;
-      if (sortKey !== key) {
-        sortKey = key;
-        sortDir = key === 'damage' || key === 'cost' ? 'desc' : 'asc';
-      } else if ((sortDir === 'asc') === !(key === 'damage' || key === 'cost')) {
-        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        sortKey = '';
-      }
-      applySort();
-    }),
-  );
-  cardSort.addEventListener('change', () => {
-    const [key, dir] = cardSort.value.split(':');
-    sortKey = key ?? '';
-    sortDir = dir === 'desc' ? 'desc' : 'asc';
-    applySort();
-  });
-
-  document.querySelector('[data-reset]')?.addEventListener('click', () => {
-    state.category = state.kind = state.mastery = '';
-    input.value = '';
-    applyFilters();
-  });
-
-  applyFilters();
 </script>

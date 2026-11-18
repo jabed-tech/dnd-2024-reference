@@ -4,6 +4,8 @@ import AppShell from '../../layouts/AppShell.astro';
 import EntryLayout from '../../components/EntryLayout.astro';
 import FavButton from '../../components/FavButton.astro';
 import Icon from '../../components/Icon.astro';
+import AsideList from '../../components/AsideList.astro';
+import RecentPanel from '../../components/RecentPanel.astro';
 import {
   equipment,
   equipmentKindMeta,
@@ -45,77 +47,66 @@ const groupHref = `${indexHref}?group=${encodeURIComponent(item.group)}`;
             <li aria-current="page">{item.name}</li>
           </ol>
         </nav>
+      </div>
+
+      <div class="block">
         <header class="entry-head">
           <div class="entry-title-row">
             <h1>{item.name}</h1>
             <FavButton id={id} name={item.name} size={24} />
           </div>
-          <div class="entry-meta">
-            <span class="badge badge-gold">{item.group}</span>
-            <span class="badge">{item.cost}</span>
-            {item.weight !== '—' && <span class="badge">{item.weight}</span>}
-          </div>
+          <p class="entry-sub">
+            <a href={groupHref}>{item.group}</a>
+          </p>
         </header>
+        <span class="taper" aria-hidden="true"></span>
+        <dl class="stat-line">
+          <div><dt>Cost</dt><dd>{item.cost}</dd></div>
+          <div><dt>Weight</dt><dd>{item.weight}</dd></div>
+        </dl>
+        {
+          item.stats.length > 0 && (
+            <>
+              <span class="taper" aria-hidden="true"></span>
+              <dl class="stat-list">
+                {item.stats.map((s) => (
+                  <div class="stat-row">
+                    <dt>{s.label}</dt>
+                    <dd set:html={linkTerms(s.value, id, 'equipment')} />
+                  </div>
+                ))}
+              </dl>
+            </>
+          )
+        }
+        {
+          item.body && (
+            <>
+              <span class="taper" aria-hidden="true"></span>
+              <div class="prose" set:html={wrapTables(linkTerms(item.body, id, 'equipment'))} />
+            </>
+          )
+        }
       </div>
-
-      {
-        item.stats.length > 0 && (
-          <div class="panel">
-            <dl class="stat-list">
-              {item.stats.map((s) => (
-                <div class="stat-row">
-                  <dt>{s.label}</dt>
-                  <dd set:html={linkTerms(s.value, id, 'weapons')} />
-                </div>
-              ))}
-            </dl>
-          </div>
-        )
-      }
-
-      {
-        item.body && (
-          <div class="panel entry-body">
-            <div class="prose" set:html={wrapTables(linkTerms(item.body, id, 'weapons'))} />
-          </div>
-        )
-      }
     </article>
 
     <Fragment slot="aside">
-      <section class="panel panel-accent" aria-labelledby="at-a-glance">
-        <h2 class="panel-title" id="at-a-glance">
-          <Icon name="backpack" size={16} />
-          At a glance
-        </h2>
-        <dl class="stat-list">
-          <div class="stat-row"><dt>Type</dt><dd>{meta.label}</dd></div>
-          <div class="stat-row"><dt>Cost</dt><dd>{item.cost}</dd></div>
-          <div class="stat-row"><dt>Weight</dt><dd>{item.weight}</dd></div>
-        </dl>
+      <RecentPanel exclude={id} />
+      <section class="panel" aria-labelledby="kind-rules">
+        <h2 class="panel-title" id="kind-rules"><Icon name="book" size={16} />Rules for {meta.plural}</h2>
+        <a class="aside-more" href={`${indexHref}?kind=${item.kind}`}>About {meta.plural}<Icon name="chevronRight" size={14} /></a>
       </section>
-
       {
         group.length > 1 && (
-          <section class="panel" aria-labelledby="siblings">
+          <section class="panel panel-accent" aria-labelledby="siblings">
             <h2 class="panel-title" id="siblings">
               <Icon name="tag" size={16} />
               {item.group} ({group.length})
             </h2>
-            <div class="chips">
-              {siblings.map((s) => (
-                <a
-                  class="chip"
-                  href={equipmentUrl(s.slug)}
-                  aria-current={s.slug === item.slug ? 'page' : undefined}
-                >
-                  {s.name}
-                </a>
-              ))}
-            </div>
+            <AsideList items={siblings.map((x) => ({ name: x.name, href: equipmentUrl(x.slug), meta: x.cost, current: x.slug === item.slug, term: x.slug === item.slug ? undefined : `equipment/${x.slug}` }))} />
             {group.length > siblings.length && (
               <p class="panel-more">
-                <a href={groupHref}>All {group.length} {item.group} →</a>
+                <a class="aside-more" href={groupHref}>All {group.length} {item.group}<Icon name="chevronRight" size={14} /></a>
               </p>
             )}
           </section>
@@ -126,11 +117,10 @@ const groupHref = `${indexHref}?group=${encodeURIComponent(item.group)}`;
 </AppShell>
 
 <style>
-  .chip[aria-current='page'] { background: var(--crimson-fill); border-color: var(--crimson-fill); color: var(--on-crimson); }
   .panel-more { margin-block: var(--space-s) 0; font-size: 0.875rem; }
   .stat-list { display: grid; gap: var(--space-xs); margin: 0; }
   .stat-row { display: grid; grid-template-columns: minmax(6.5rem, max-content) 1fr; gap: var(--space-s); align-items: baseline; }
-  .stat-row dt { color: var(--text-muted); font-size: 0.875rem; }
+  .stat-row dt { color: var(--red); font-weight: 700; }
   .stat-row dd { margin: 0; }
   @media (width < 30rem) {
     .stat-row { grid-template-columns: 1fr; gap: 0; }

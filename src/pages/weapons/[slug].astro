@@ -4,7 +4,8 @@ import AppShell from '../../layouts/AppShell.astro';
 import EntryLayout from '../../components/EntryLayout.astro';
 import FavButton from '../../components/FavButton.astro';
 import Icon from '../../components/Icon.astro';
-import WeaponChips from '../../components/WeaponChips.astro';
+import AsideList from '../../components/AsideList.astro';
+import RecentPanel from '../../components/RecentPanel.astro';
 import {
   linkTerms,
   masteryBySlug,
@@ -15,6 +16,7 @@ import {
   url,
   weaponGroup,
   weapons,
+  weaponUrl,
   type Weapon,
 } from '../../lib/data';
 
@@ -44,23 +46,42 @@ const sameGroup = weapons.filter((w) => weaponGroup(w) === group && w.slug !== w
             <li aria-current="page">{weapon.name}</li>
           </ol>
         </nav>
+      </div>
+
+      <div class="block">
         <header class="entry-head">
           <div class="entry-title-row">
             <h1>{weapon.name}</h1>
             <FavButton id={id} name={weapon.name} size={24} />
           </div>
-          <div class="entry-meta">
-            <span class="badge badge-crimson">{group}</span>
-          </div>
+          <p class="entry-sub"><a href={url(`weapons/?category=${weapon.category}&kind=${weapon.kind}`)}>{group} weapon</a></p>
         </header>
+        <span class="taper" aria-hidden="true"></span>
+        <dl class="stat-line">
+          <div><dt>Damage</dt><dd>{weapon.damage.dice} {weapon.damage.type}</dd></div>
+          <div><dt>Mastery</dt><dd><a href={masteryUrl(mastery.slug)}>{mastery.name}</a></dd></div>
+          <div><dt>Weight</dt><dd>{weapon.weight}</dd></div>
+          <div><dt>Cost</dt><dd>{weapon.cost}</dd></div>
+        </dl>
+        <span class="taper" aria-hidden="true"></span>
+        <dl class="stat-line">
+          <div>
+            <dt>Properties</dt>
+            <dd>
+              {
+                weapon.properties.length
+                  ? weapon.properties.map((p, i) => (
+                      <>
+                        {i > 0 && ', '}
+                        <a href={propertyUrl(p.slug)}>{propertyLabel(p)}</a>
+                      </>
+                    ))
+                  : 'None'
+              }
+            </dd>
+          </div>
+        </dl>
       </div>
-
-      <dl class="stat-grid narrow-only">
-        <div class="stat"><dt>Damage</dt><dd>{weapon.damage.dice} {weapon.damage.type}</dd></div>
-        <div class="stat"><dt>Mastery</dt><dd><a href={masteryUrl(mastery.slug)}>{mastery.name}</a></dd></div>
-        <div class="stat"><dt>Weight</dt><dd>{weapon.weight}</dd></div>
-        <div class="stat"><dt>Cost</dt><dd>{weapon.cost}</dd></div>
-      </dl>
 
       <section aria-labelledby="mastery-h">
         <h2 class="panel-title" id="mastery-h"><Icon name="sparkles" size={16} />Mastery</h2>
@@ -96,55 +117,19 @@ const sameGroup = weapons.filter((w) => weaponGroup(w) === group && w.slug !== w
     </article>
 
     <Fragment slot="aside">
-      <section class="panel panel-accent wide-only" aria-labelledby="glance-h">
-        <h2 class="panel-title" id="glance-h"><Icon name="sword" size={16} />At a glance</h2>
-        <dl class="glance">
-          <div><dt>Damage</dt><dd>{weapon.damage.dice} {weapon.damage.type}</dd></div>
-          <div><dt>Mastery</dt><dd><a href={masteryUrl(mastery.slug)}>{mastery.name}</a></dd></div>
-          <div>
-            <dt>Properties</dt>
-            <dd>
-              {
-                weapon.properties.length ? (
-                  <ul class="glance-list">
-                    {weapon.properties.map((p) => {
-                      const name = propertyBySlug.get(p.slug)!.name;
-                      const extra = propertyLabel(p).slice(name.length).trim();
-                      return (
-                        <li>
-                          <a href={propertyUrl(p.slug)}>{name}</a>
-                          {extra && <small> {extra}</small>}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  '—'
-                )
-              }
-            </dd>
-          </div>
-          <div><dt>Weight</dt><dd>{weapon.weight}</dd></div>
-          <div><dt>Cost</dt><dd>{weapon.cost}</dd></div>
-        </dl>
-      </section>
-
       {
         sameMastery.length > 0 && (
-          <section class="panel" aria-labelledby="same-mastery">
+          <section class="panel panel-accent" aria-labelledby="same-mastery">
             <h2 class="panel-title" id="same-mastery"><Icon name="sparkles" size={16} />Other {mastery.name} weapons</h2>
-            <WeaponChips weapons={sameMastery} />
+            <AsideList items={sameMastery.map((w) => ({ name: w.name, href: weaponUrl(w.slug), meta: w.damage.dice, term: `weapons/${w.slug}` }))} />
           </section>
         )
       }
+      <RecentPanel exclude={id} />
       <section class="panel" aria-labelledby="same-group">
         <h2 class="panel-title" id="same-group"><Icon name="swords" size={16} />Other {group} weapons</h2>
-        <WeaponChips weapons={sameGroup} />
+        <AsideList items={sameGroup.map((w) => ({ name: w.name, href: weaponUrl(w.slug), meta: w.damage.dice, term: `weapons/${w.slug}` }))} />
       </section>
     </Fragment>
   </EntryLayout>
 </AppShell>
-
-<style>
-  .mastery-def { border-inline-start: 3px solid var(--gold-line); }
-</style>

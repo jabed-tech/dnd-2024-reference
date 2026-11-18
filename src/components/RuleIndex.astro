@@ -61,11 +61,13 @@ const { kind, rules, intro, hrefFor, weaponsFor } = Astro.props;
     padding: var(--space-l);
     border-radius: var(--radius-l);
     scroll-margin-block-start: calc(var(--header-h) + var(--space-m));
+    border-block-start: 3px solid var(--red-line);
   }
-  .def-item:target { border-color: var(--gold-line); box-shadow: 0 0 0 3px var(--gold-soft); }
+  .def-item:target { border-color: var(--red-line); box-shadow: 0 0 0 3px var(--red-soft); }
   .def-item .entry-title-row { align-items: center; }
   .def-item h2 { font-size: var(--step-2); }
-  .def-item h2 a { color: inherit; text-decoration: none; }
-  .def-item h2 a:hover { color: var(--crimson); }
+  .def-item h2 a { text-decoration: none; }
+  .def-item h2 a { color: var(--red); }
+  .def-item h2 a:hover { text-decoration: underline; }
   .weapons-using { margin-block-start: var(--space-m); }
 </style>

@@ -12,12 +12,12 @@ test('starring a glossary entry persists, shows on /favourites/, and can be unst
   await expect(page.locator('[data-fav="glossary/grappled-condition"]')).toHaveAttribute('aria-pressed', 'true');
 
   await page.goto('favourites/');
-  const card = page.locator('[data-fav-grid] .card', { hasText: 'Grappled' });
+  const card = page.locator('[data-fav-grid] .row', { hasText: 'Grappled' });
   await expect(card).toBeVisible();
   await expect(page.locator('[data-fav-empty]')).toBeHidden();
 
   await card.locator('[data-fav]').click();
-  await expect(page.locator('[data-fav-grid] .card', { hasText: 'Grappled' })).toHaveCount(0);
+  await expect(page.locator('[data-fav-grid] .row', { hasText: 'Grappled' })).toHaveCount(0);
   await expect(page.locator('[data-fav-empty]')).toBeVisible();
 });
 

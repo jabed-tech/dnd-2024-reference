@@ -1,10 +1,16 @@
 ---
-import '@fontsource/cinzel/600.css';
-import '@fontsource/cinzel/700.css';
-import '@fontsource-variable/inter';
+import '@fontsource/spectral-sc/600.css';
+import '@fontsource/spectral-sc/700.css';
+import '@fontsource-variable/atkinson-hyperlegible-next';
 import '../styles/global.css';
+// Preloaded so text renders in its final face on the first paint instead of
+// swapping (and shifting) a moment after every navigation.
+import bodyFont from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
+import titleFont from '@fontsource/spectral-sc/files/spectral-sc-latin-600-normal.woff2?url';
+import titleBoldFont from '@fontsource/spectral-sc/files/spectral-sc-latin-700-normal.woff2?url';
 import Icon from '../components/Icon.astro';
 import SearchPalette from '../components/SearchPalette.astro';
+import { ClientRouter } from 'astro:transitions';
 import { CATEGORIES, equipment, glossary, masteries, properties, url, weapons } from '../lib/data';
 
 export type Section =
@@ -23,8 +29,20 @@ interface Props {
   category?: string;
 }
 
-const { title, description = 'Fast, searchable D&D 2024 rules glossary, weapons and weapon masteries — built from the SRD 5.2.1.', section, category } = Astro.props;
+const { title, description = 'Fast, searchable D&D 2024 rules glossary, weapons, weapon masteries and equipment, built from the SRD 5.2.1.', section, category } = Astro.props;
 const siteName = 'D&D 2024 Reference';
+// Content swaps: the old page leaves in 90ms, the new one fades and lifts 6px
+// into place in 200ms. The shell around it (header, sidebar) does not move.
+const snappy = {
+  forwards: {
+    old: { name: 'vt-out', duration: '90ms', easing: 'ease-in', fillMode: 'both' },
+    new: { name: 'vt-in', duration: '200ms', easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fillMode: 'both' },
+  },
+  backwards: {
+    old: { name: 'vt-out', duration: '90ms', easing: 'ease-in', fillMode: 'both' },
+    new: { name: 'vt-in', duration: '200ms', easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fillMode: 'both' },
+  },
+};
 const pageTitle = section === 'home' ? siteName : `${title} · ${siteName}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
@@ -35,10 +53,13 @@ const path = Astro.url.pathname.replace(/\/?$/, '/');
 const current = (s: Section) => (section === s && path === url(s === 'home' ? '' : `${s}/`) ? 'page' : undefined);
 // Detail pages highlight their parent section without claiming aria-current.
 const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
+// The bottom bar's Weapons tab covers the weapon rules pages too; it only claims
+// aria-current on the weapons index itself.
+const armsActive = ['masteries', 'properties'].includes(section) || within('weapons') !== undefined ? '' : undefined;
 ---
 
 <!doctype html>
-<html lang="en-GB">
+<html lang="en-GB" transition:animate="none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -46,29 +67,53 @@ const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f5f0" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b1613" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0a0b" />
     <link rel="icon" href={url('icon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={url('icon-192.png')} />
     <link rel="manifest" href={url('manifest.webmanifest')} />
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={titleFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={titleBoldFont} as="font" type="font/woff2" crossorigin />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <script is:inline>
       (() => {
-        let pref = null;
-        try { pref = localStorage.getItem('dnd-ref:theme'); } catch {}
+        // Theme and sidebar state live on <html>. The router copies the next
+        // page's <html> attributes over these on every swap, so they are
+        // re-applied after each swap as well as before the first paint.
         const root = document.documentElement;
-        const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        if (pref === 'light' || pref === 'dark') root.dataset.theme = pref;
-        root.dataset.resolvedTheme = pref === 'light' || pref === 'dark' ? pref : system;
+        const apply = () => {
+          let pref = null;
+          let sidebar = null;
+          try { pref = localStorage.getItem('dnd-ref:theme'); sidebar = localStorage.getItem('dnd-ref:sidebar'); } catch {}
+          const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          if (pref === 'light' || pref === 'dark') root.dataset.theme = pref;
+          root.dataset.resolvedTheme = pref === 'light' || pref === 'dark' ? pref : system;
+          if (sidebar === 'collapsed') root.dataset.sidebar = 'collapsed';
+        };
+        apply();
+        document.addEventListener('astro:after-swap', apply);
+        // The sidebar is swapped with the page; keep its scroll position.
+        document.addEventListener('astro:before-swap', () => {
+          try { sessionStorage.setItem('dnd-ref:sidebar-scroll', String(document.getElementById('sidebar')?.scrollTop ?? 0)); } catch {}
+        });
+        document.addEventListener('astro:after-swap', () => {
+          const nav = document.getElementById('sidebar');
+          try { if (nav) nav.scrollTop = Number(sessionStorage.getItem('dnd-ref:sidebar-scroll')) || 0; } catch {}
+        });
       })();
     </script>
+    <ClientRouter fallback="swap" />
   </head>
   <body data-base={url()}>
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="app-header">
+    <header class="app-header" transition:persist="app-header" transition:animate="none">
+      <button class="icon-btn sidebar-toggle" type="button" data-sidebar-toggle aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar">
+        <Icon name="panelLeft" />
+      </button>
       <a class="brand" href={url()} aria-label={`${siteName} home`}>
         <span class="brand-mark"><Icon name="d20" size={22} /></span>
         <span class="brand-text">D&amp;D <span class="brand-sub">2024</span> Reference</span>
@@ -76,7 +121,7 @@ const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
       <div class="header-search">
         <button class="search-trigger" type="button" data-open-search aria-haspopup="dialog">
           <Icon name="search" size={18} />
-          <span>Search rules, weapons, masteries…</span>
+          <span>Search rules, weapons, gear…</span>
           <kbd data-shortcut-hint>Ctrl K</kbd>
         </button>
       </div>
@@ -92,11 +137,11 @@ const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
     </header>
 
     <div class="shell">
-      <nav class="sidebar" aria-label="Sections">
+      <nav class="sidebar" id="sidebar" aria-label="Sections">
         <div class="nav-group">
           <ul class="nav-list">
-            <li><a class="nav-link" href={url()} aria-current={current('home')}><Icon name="home" size={18} />Home</a></li>
-            <li><a class="nav-link" href={url('favourites/')} aria-current={current('favourites')}><Icon name="star" size={18} />Favourites</a></li>
+            <li><a class="nav-link" href={url()} aria-current={current('home')}><Icon name="home" size={18} /><span class="nav-label">Home</span></a></li>
+            <li><a class="nav-link" href={url('favourites/')} aria-current={current('favourites')}><Icon name="star" size={18} /><span class="nav-label">Favourites</span></a></li>
           </ul>
         </div>
         <div class="nav-group">
@@ -104,7 +149,7 @@ const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
           <ul class="nav-list">
             <li>
               <a class="nav-link" href={url('glossary/')} aria-current={current('glossary')} data-nav-all>
-                <Icon name="book" size={18} />All rules<span class="nav-count">{glossary.length}</span>
+                <Icon name="book" size={18} /><span class="nav-label">All rules</span><span class="nav-count">{glossary.length}</span>
               </a>
             </li>
             {
@@ -112,7 +157,7 @@ const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
                 <li>
                   <a class="nav-link" href={url(`glossary/?category=${c.slug}`)} data-nav-category={c.slug} data-active={category === c.name ? '' : undefined}>
                     <Icon name={c.icon} size={18} />
-                    {c.name}
+                    <span class="nav-label">{c.name}</span>
                     <span class="nav-count">{catCounts.get(c.name)}</span>
                   </a>
                 </li>
@@ -123,15 +168,23 @@ const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
         <div class="nav-group">
           <p class="nav-heading">Equipment</p>
           <ul class="nav-list">
-            <li><a class="nav-link" href={url('weapons/')} aria-current={current('weapons')} data-active={within('weapons')}><Icon name="swords" size={18} />Weapons<span class="nav-count">{weapons.length}</span></a></li>
-            <li><a class="nav-link" href={url('masteries/')} aria-current={current('masteries')} data-active={within('masteries')}><Icon name="sparkles" size={18} />Weapon Masteries<span class="nav-count">{masteries.length}</span></a></li>
-            <li><a class="nav-link" href={url('properties/')} aria-current={current('properties')} data-active={within('properties')}><Icon name="tag" size={18} />Weapon Properties<span class="nav-count">{properties.length}</span></a></li>
-            <li><a class="nav-link" href={url('equipment/')} aria-current={current('equipment')} data-active={within('equipment')}><Icon name="backpack" size={18} />Gear &amp; Armor<span class="nav-count">{equipment.length}</span></a></li>
+            <li><a class="nav-link" href={url('weapons/')} aria-current={current('weapons')} data-active={within('weapons')}><Icon name="swords" size={18} /><span class="nav-label">Weapons</span><span class="nav-count">{weapons.length}</span></a></li>
+            <li><a class="nav-link" href={url('masteries/')} aria-current={current('masteries')} data-active={within('masteries')}><Icon name="sparkles" size={18} /><span class="nav-label">Weapon Masteries</span><span class="nav-count">{masteries.length}</span></a></li>
+            <li><a class="nav-link" href={url('properties/')} aria-current={current('properties')} data-active={within('properties')}><Icon name="tag" size={18} /><span class="nav-label">Weapon Properties</span><span class="nav-count">{properties.length}</span></a></li>
+            <li><a class="nav-link" href={url('equipment/')} aria-current={current('equipment')} data-active={within('equipment')}><Icon name="backpack" size={18} /><span class="nav-label">Gear &amp; Armor</span><span class="nav-count">{equipment.length}</span></a></li>
           </ul>
         </div>
       </nav>
+      <script is:inline>
+        // Keep the sidebar where the reader left it across page loads.
+        try {
+          const nav = document.getElementById('sidebar');
+          nav.scrollTop = Number(sessionStorage.getItem('dnd-ref:sidebar-scroll')) || 0;
+          addEventListener('pagehide', () => sessionStorage.setItem('dnd-ref:sidebar-scroll', String(nav.scrollTop)), { once: true });
+        } catch {}
+      </script>
 
-      <main class="main" id="main" tabindex="-1">
+      <main class="main" id="main" tabindex="-1" transition:name="main" transition:animate={snappy}>
         <div class="main-inner">
           <slot />
           <footer class="app-footer">
@@ -147,16 +200,16 @@ const within = (s: Section) => (section === s && !current(s) ? '' : undefined);
     </div>
 
     <nav class="bottom-nav" aria-label="Primary">
-      <a href={url()} aria-current={section === 'home' ? 'page' : undefined}><Icon name="home" size={22} />Home</a>
-      <a href={url('glossary/')} aria-current={section === 'glossary' ? 'page' : undefined}><Icon name="book" size={22} />Rules</a>
+      <a href={url()} aria-current={current('home')}><Icon name="home" size={22} />Home</a>
+      <a href={url('glossary/')} aria-current={current('glossary')} data-active={within('glossary')}><Icon name="book" size={22} />Rules</a>
       <button type="button" data-open-search aria-haspopup="dialog"><Icon name="search" size={22} />Search</button>
-      <a href={url('weapons/')} aria-current={['weapons', 'masteries', 'properties', 'equipment'].includes(section) ? 'page' : undefined}><Icon name="swords" size={22} />Weapons</a>
-      <a href={url('favourites/')} aria-current={section === 'favourites' ? 'page' : undefined}><Icon name="star" size={22} />Saved</a>
+      <a href={url('weapons/')} aria-current={current('weapons')} data-active={armsActive}><Icon name="swords" size={22} />Weapons</a>
+      <a href={url('favourites/')} aria-current={current('favourites')}><Icon name="star" size={22} />Saved</a>
     </nav>
 
     <SearchPalette />
 
-    <div class="term-tip" id="term-tip" popover="manual" role="tooltip"></div>
+    <div class="term-tip" id="term-tip" popover="manual" role="tooltip" transition:persist="term-tip"></div>
 
     <script>
       import { initShell } from '../scripts/shell';
