@@ -29,7 +29,7 @@ Three things together set it apart from D&D Beyond and other SRD sites, and futu
 - Used during live sessions on phones, tablets and laptops, often in a hurry and sometimes with poor signal. The site is an installable PWA that works offline after the first visit.
 - Every entry has its own page and URL, so rules can be shared in group chats or at the table.
 - Favourites and recently viewed items are stored on the user's device. There are no accounts.
-- Hosted on GitHub Pages at `https://jabeda321.github.io/dnd-2024-reference/`.
+- Hosted on GitHub Pages at `https://jabed-tech.github.io/dnd-2024-reference/`.
 
 ## Capabilities and Constraints
 

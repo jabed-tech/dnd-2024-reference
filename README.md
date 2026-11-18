@@ -2,7 +2,7 @@
 
 A fast, searchable, offline-capable reference for the **D&D 2024 Rules Glossary**, **weapons**, **weapon properties**, **weapon masteries** and **equipment** (armor, tools, adventuring gear, mounts and vehicles), built from the [SRD 5.2.1](https://www.dndbeyond.com/srd).
 
-Live site: https://jabeda321.github.io/dnd-2024-reference/
+Live site: https://jabed-tech.github.io/dnd-2024-reference/
 
 Replaces the earlier [`dnd_2024`](https://github.com/jabeda321/dnd_2024) and [`dnd_2024_weapons`](https://github.com/jabeda321/dnd_2024_weapons) sites.
 
