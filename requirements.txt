@@ -1,0 +1,2 @@
+# Python tooling for regenerating src/data from the SRD PDF (see README "Data").
+pymupdf==1.28.2

@@ -1,4 +1,6 @@
 ---
+// One entry in a dense index list: title, badges and summary, with the whole row
+// as the link target and the favourite star above it.
 import FavButton from './FavButton.astro';
 
 interface Props {
@@ -6,26 +8,20 @@ interface Props {
   title: string;
   href: string;
   summary: string;
-  badges?: { text: string; tone?: 'crimson' | 'gold' }[];
+  badges?: { text: string; tone?: 'red' | 'outline' }[];
   attrs?: Record<string, string>;
 }
 
 const { id, title, href, summary, badges = [], attrs = {} } = Astro.props;
 ---
 
-<article class="card" {...attrs}>
-  <div class="card-top">
-    <h3 class="card-title"><a class="card-link" href={href}>{title}</a></h3>
-    <FavButton id={id} name={title} size={18} />
+<li class="row" {...attrs}>
+  <div class="row-main">
+    <h3 class="row-title">
+      <a class="row-link" href={href}>{title}</a>
+      {badges.map((b) => <span class:list={['badge', b.tone && `badge-${b.tone}`]}>{b.text}</span>)}
+    </h3>
+    <p class="row-summary">{summary}</p>
   </div>
-  <p class="card-summary">{summary}</p>
-  {
-    badges.length > 0 && (
-      <div class="card-meta">
-        {badges.map((b) => (
-          <span class:list={['badge', b.tone && `badge-${b.tone}`]}>{b.text}</span>
-        ))}
-      </div>
-    )
-  }
-</article>
+  <FavButton id={id} name={title} size={20} />
+</li>

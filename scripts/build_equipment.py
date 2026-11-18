@@ -196,6 +196,59 @@ def to_html(lines: list[str]) -> str:
     return "".join(out)
 
 
+# Section intros carry sub-headings ("Armor Training", "Speed") and plain-bold
+# lead-ins ("Category. Every type of armor…") that extract_srd.py does not mark,
+# because they are set in a different font from the bold-italic item lead-ins.
+# Both are recognisable from the text: a heading is a short Title Case line with
+# no closing punctuation; a lead-in is a short Title Case phrase ending in a
+# full stop at the start of a line.
+SMALL_WORDS = {"a", "an", "and", "at", "by", "for", "in", "of", "on", "or", "per", "the", "to", "with"}
+
+
+def is_title_case(text: str) -> bool:
+    words = re.findall(r"[A-Za-z’']+", text)
+    return bool(words) and all(w[0].isupper() or w in SMALL_WORDS for w in words) and words[0][0].isupper()
+
+
+def is_intro_heading(line: str) -> bool:
+    t = line.strip()
+    return 0 < len(t) <= 40 and t[0].isupper() and not re.search(r"[.:;,”]$", t) and is_title_case(t)
+
+
+INTRO_LEAD_IN = re.compile(r"^([A-Z][A-Za-z’' ()/-]{0,38}?)\.\s+(?=[A-Z“])")
+
+
+def intro_html(lines: list[str]) -> str:
+    """Render a section intro with its sub-headings and lead-ins kept."""
+    blocks: list[tuple[str, list[str]]] = []  # ("h3" | "p", lines)
+    for line in lines:
+        if not line.strip():
+            continue
+        t = line.strip()
+        lead = INTRO_LEAD_IN.match(t)
+        if is_intro_heading(t):
+            blocks.append(("h3", [t]))
+        elif line.startswith("	") or (lead and is_title_case(lead.group(1))) or not blocks or blocks[-1][0] == "h3":
+            blocks.append(("p", [t]))
+        else:
+            blocks[-1][1].append(t)
+    # A trailing heading with nothing under it is the table's caption.
+    while blocks and blocks[-1][0] == "h3":
+        blocks.pop()
+    out = []
+    for kind, parts in blocks:
+        text = demark(re.sub(r"\s+", " ", " ".join(parts)).strip())
+        if kind == "h3":
+            out.append(f"<h3>{esc(text)}</h3>")
+            continue
+        lead = INTRO_LEAD_IN.match(text)
+        if lead and is_title_case(lead.group(1)):
+            out.append(f"<p><strong>{esc(lead.group(1))}.</strong> {esc(text[lead.end():])}</p>")
+        else:
+            out.append(f"<p>{esc(text)}</p>")
+    return "".join(out)
+
+
 def table_html(caption: str, headers: list[str], rows: list[list[str]]) -> str:
     head = "".join(f"<th>{esc(h)}</th>" for h in headers)
     body = "".join(
@@ -269,7 +322,7 @@ def parse_armor() -> str:
     # run rather than the caption.
     start = find(lambda l: l.strip() == "Armor Class (AC)", ARMOR_AT)
     assert [l.strip() for l in LINES[start : start + 5]] == ARMOR_COLUMNS[1:]
-    intro = to_html(LINES[ARMOR_AT + 1 : start - 1])
+    intro = intro_html(LINES[ARMOR_AT + 1 : start - 1])
 
     i = start + 5
     group = ""
@@ -330,7 +383,7 @@ def parse_field_block(lines: list[str]) -> dict[str, str]:
 def parse_tools() -> str:
     artisan_at = find(lambda l: l.strip() == "Artisan’s Tools", TOOLS_AT)
     other_at = find(lambda l: l.strip() == "Other Tools", artisan_at)
-    intro = to_html(LINES[TOOLS_AT + 1 : artisan_at])
+    intro = intro_html(LINES[TOOLS_AT + 1 : artisan_at])
 
     # Entry headings within each block, plus the block end as a sentinel.
     for group, start, end in (
@@ -425,7 +478,7 @@ def take_table(start: int, caption: str, headers: list[str]) -> tuple[str, int]:
 def parse_gear() -> str:
     table, table_start, table_end = parse_gear_table()
     first_entry = find(lambda l: GEAR_ENTRY.match(l.strip()), GEAR_AT + 1)
-    intro = to_html(LINES[GEAR_AT + 1 : first_entry])
+    intro = intro_html(LINES[GEAR_AT + 1 : first_entry])
 
     # Walk the description run, collecting each item's prose and any sub-table.
     described: dict[str, tuple[str, str]] = {}
@@ -550,7 +603,7 @@ VEHICLE_COLUMNS = [
 def parse_mounts() -> tuple[str, str]:
     animals_at = find(lambda l: l.strip() == "Mounts and Other Animals", MOUNTS_AT + 2)
     large_at = find(lambda l: l.strip() == "Large Vehicles", MOUNTS_AT)
-    mounts_intro = to_html(LINES[MOUNTS_AT + 1 : animals_at])
+    mounts_intro = intro_html(LINES[MOUNTS_AT + 1 : animals_at])
 
     parse_simple_table(
         "Mounts and Other Animals",
@@ -565,8 +618,19 @@ def parse_mounts() -> tuple[str, str]:
         "Tack, Harness, and Drawn Vehicles",
     )
 
+    # The SRD prints tack (saddles, feed, stabling) in the same table as drawn
+    # vehicles, but the rules for it are in the mounts intro, so it files with
+    # mounts. The group still names the SRD table it came from.
+    for item in items:
+        if item["group"] == "Tack, Harness, and Drawn Vehicles" and item["name"].startswith(("Saddle", "Feed", "Stabling")):
+            item["kind"] = "mount"
+
     ships_at = find(lambda l: l.strip() == "Airborne and Waterborne Vehicles", large_at)
-    vehicles_intro = to_html(LINES[large_at + 1 : ships_at])
+    # Lifestyle Expenses follows the vehicle notes but is its own SRD section,
+    # not part of the vehicles intro.
+    lifestyle_at = find(lambda l: l.strip() == "Lifestyle Expenses", large_at)
+    vehicles_end = lifestyle_at if 0 <= lifestyle_at < ships_at else ships_at
+    vehicles_intro = intro_html(LINES[large_at + 1 : vehicles_end])
     i = ships_at + 1 + len(VEHICLE_COLUMNS)
     while i + len(VEHICLE_COLUMNS) <= len(LINES):
         row = [l.strip() for l in LINES[i : i + len(VEHICLE_COLUMNS)]]

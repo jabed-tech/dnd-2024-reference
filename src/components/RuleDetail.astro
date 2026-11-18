@@ -3,8 +3,9 @@
 import EntryLayout from './EntryLayout.astro';
 import FavButton from './FavButton.astro';
 import Icon from './Icon.astro';
-import WeaponChips from './WeaponChips.astro';
-import { linkTerms, type Rule, type Weapon } from '../lib/data';
+import AsideList from './AsideList.astro';
+import RecentPanel from './RecentPanel.astro';
+import { linkTerms, weaponGroup, weaponUrl, type Rule, type Weapon } from '../lib/data';
 
 interface Props {
   kind: 'masteries' | 'properties';
@@ -29,18 +30,17 @@ const id = `${kind}/${rule.slug}`;
           <li aria-current="page">{rule.name}</li>
         </ol>
       </nav>
+    </div>
+
+    <div class="block">
       <header class="entry-head">
         <div class="entry-title-row">
           <h1>{rule.name}</h1>
           <FavButton id={id} name={rule.name} size={24} />
         </div>
-        <div class="entry-meta">
-          <span class:list={['badge', kind === 'masteries' ? 'badge-gold' : 'badge-crimson']}>{label}</span>
-        </div>
+        <p class="entry-sub">{label}{weapons.length > 0 && `, used by ${weapons.length} weapon${weapons.length === 1 ? '' : 's'}`}</p>
       </header>
-    </div>
-
-    <div class="panel entry-body">
+      <span class="taper" aria-hidden="true"></span>
       <div class="prose" set:html={linkTerms(rule.body, id, 'weapons')} />
     </div>
   </article>
@@ -53,29 +53,19 @@ const id = `${kind}/${rule.slug}`;
             <Icon name="swords" size={16} />
             Weapons with {rule.name} ({weapons.length})
           </h2>
-          <WeaponChips weapons={weapons} />
+          <AsideList items={weapons.map((w) => ({ name: w.name, href: weaponUrl(w.slug), meta: `${w.damage.dice} · ${weaponGroup(w)}`, term: `weapons/${w.slug}` }))} />
         </section>
       )
     }
+
+    <RecentPanel exclude={id} />
 
     <section class="panel" aria-labelledby="others">
       <h2 class="panel-title" id="others">
         <Icon name={kind === 'masteries' ? 'sparkles' : 'tag'} size={16} />
         All {indexLabel.toLowerCase()}
       </h2>
-      <div class="chips">
-        {
-          siblings.map((s) => (
-            <a class="chip" href={s.href} aria-current={s.current ? 'page' : undefined}>
-              {s.name}
-            </a>
-          ))
-        }
-      </div>
+      <AsideList items={siblings.map((x) => ({ name: x.name, href: x.href, current: x.current }))} />
     </section>
   </Fragment>
 </EntryLayout>
-
-<style>
-  .chip[aria-current='page'] { background: var(--crimson-fill); border-color: var(--crimson-fill); color: var(--on-crimson); }
-</style>
